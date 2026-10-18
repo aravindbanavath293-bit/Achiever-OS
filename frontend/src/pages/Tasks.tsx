@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Search, Filter, Plus, Clock, Edit2, Trash2, Check, Flag, Calendar, ChevronDown, CheckSquare } from 'lucide-react';
 import { useAppData } from '../context/AppDataContext';
 import { Task, Priority, TaskStatus, PRIORITY_CONFIG, CATEGORY_COLORS, DEFAULT_CATEGORIES, SortConfig } from '../types';
-import { formatDate, formatTime, isTaskToday, isOverdue, getRelativeDateLabel } from '../utils/dateUtils';
+import { formatTime, isTaskToday, isOverdue, getRelativeDateLabel } from '../utils/dateUtils';
 import TaskModal from '../components/shared/TaskModal';
 import toast from 'react-hot-toast';
 
@@ -10,13 +11,21 @@ type QuickFilter = 'all' | 'today' | 'high-priority' | string;
 
 export default function Tasks() {
   const { tasks, addTask, updateTask, deleteTask, toggleTask } = useAppData();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [quickFilter, setQuickFilter] = useState<QuickFilter>('all');
   const [statusFilter, setStatusFilter] = useState<TaskStatus | ''>('');
   const [sortConfig, setSortConfig] = useState<SortConfig>({ by: 'due_date', direction: 'asc' });
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
+
+  useEffect(() => {
+    const q = searchParams.get('search');
+    if (q !== null) {
+      setSearchQuery(q);
+    }
+  }, [searchParams]);
 
   const filteredTasks = useMemo(() => {
     let result = [...tasks];

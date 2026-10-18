@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 import MobileNav from './MobileNav';
@@ -10,6 +10,7 @@ export default function AppLayout() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const { addTask } = useAppData();
+  const navigate = useNavigate();
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -21,7 +22,14 @@ export default function AppLayout() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col md:ml-[180px] w-full">
-        <TopBar onMenuClick={() => setMobileNavOpen(true)} />
+        <TopBar
+          onMenuClick={() => setMobileNavOpen(true)}
+          onSearch={(query) => {
+            if (query.trim()) {
+              navigate(`/tasks?search=${encodeURIComponent(query.trim())}`);
+            }
+          }}
+        />
         <main className="flex-1 p-3 md:p-5 overflow-y-auto">
           <div className="max-w-[1200px] mx-auto">
             <Outlet />
