@@ -78,7 +78,7 @@ export default function Sidebar({ onCreateTask }: SidebarProps) {
           }
         >
           <Bot size={18} />
-          <span>AI Assistant</span>
+          <span>AchieverOS AI Agent</span>
         </NavLink>
         <NavLink
           to="/settings"

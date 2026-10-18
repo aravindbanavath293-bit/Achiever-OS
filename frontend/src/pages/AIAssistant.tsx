@@ -11,7 +11,7 @@ import toast from 'react-hot-toast';
 interface Message {
   id: string;
   sender: 'user' | 'assistant';
-  agent?: 'Orchestrator' | 'Planner' | 'Task Intelligence' | 'Goal Coach' | 'Knowledge Retrieval';
+  agent?: string;
   text: string;
   actionCard?: {
     type: 'create_task' | 'create_goal' | 'daily_plan';
@@ -27,6 +27,41 @@ const QUICK_PROMPTS = [
   'Search my notes for architecture ideas',
   'Summarize my productivity streak and velocity',
 ];
+
+function renderFormattedMessage(text: string) {
+  const lines = text.split('\n');
+  return (
+    <div className="space-y-1">
+      {lines.map((line, idx) => {
+        if (!line.trim()) {
+          return <div key={idx} className="h-1.5" />;
+        }
+        const parts = line.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+        return (
+          <p key={idx} className="leading-relaxed">
+            {parts.map((part, pIdx) => {
+              if (part.startsWith('**') && part.endsWith('**')) {
+                return (
+                  <strong key={pIdx} className="font-semibold text-primary">
+                    {part.slice(2, -2)}
+                  </strong>
+                );
+              }
+              if (part.startsWith('*') && part.endsWith('*')) {
+                return (
+                  <em key={pIdx} className="italic text-secondary-text">
+                    {part.slice(1, -1)}
+                  </em>
+                );
+              }
+              return part;
+            })}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function AIAssistant() {
   const { user } = useAuth();
@@ -144,18 +179,28 @@ export default function AIAssistant() {
         const completed = tasks.filter(t => t.status === 'completed').length;
         responseText = `📊 **Productivity Summary**:\n• Active Streak: **${streak.current_streak} days** (Record: ${streak.longest_streak} days)\n• Total Completed Tasks: **${completed}**\n• Active Goals: **${goals.filter(g => g.status === 'in-progress').length}**\n• Velocity: High consistency. You are on track to achieve all weekly targets!`;
       } else {
-        agentName = 'Task Intelligence';
-        setActiveAgent('Task Intelligence Agent');
-        responseText = `I parsed your input and can create a task for you with priority tracking. Would you like me to add: "${query}"?`;
-        actionCard = {
-          type: 'create_task',
-          data: {
-            title: query,
-            category: 'General',
-            priority: 'medium',
-            due_date: new Date().toISOString().split('T')[0],
-          },
-        };
+        const greetingWords = ['hi', 'hello', 'hey', 'hiii', 'hiya', 'howdy', 'sup', 'who are you', 'what can you do', 'help'];
+        const isGreeting = greetingWords.some(w => qLower === w || qLower.startsWith(w + ' ') || qLower.startsWith(w + '!') || qLower.startsWith(w + ','));
+
+        if (isGreeting && !['task', 'plan', 'goal', 'schedule', 'todo', 'deadline'].some(w => qLower.includes(w))) {
+          agentName = 'AchieverOS AI Agent';
+          setActiveAgent('AchieverOS AI Agent');
+          responseText = `Hello! I am your AchieverOS AI Agent. I'm here to help you stay focused, organized, and productive.\n\nHere is what I can do for you:\n• **Plan Your Day:** Try asking *"Plan my day around today's deadlines"*\n• **Break Down Goals:** Try *"Break down learning TypeScript into a 4-week goal"*\n• **Manage Tasks:** Try *"Add task: Review the quarterly roadmap tomorrow morning"*\n• **Search Notes:** Try *"Search my notes for architecture ideas"*\n\nHow can I assist you right now?`;
+          actionCard = undefined;
+        } else {
+          agentName = 'Task Intelligence';
+          setActiveAgent('Task Intelligence Agent');
+          responseText = `I parsed your input and can create a task for you with priority tracking. Would you like me to add: "${query}"?`;
+          actionCard = {
+            type: 'create_task',
+            data: {
+              title: query,
+              category: 'General',
+              priority: 'medium',
+              due_date: new Date().toISOString().split('T')[0],
+            },
+          };
+        }
       }
 
       setMessages(prev => [
@@ -244,12 +289,12 @@ export default function AIAssistant() {
             }`}>
               {msg.sender === 'assistant' && msg.agent && (
                 <div className="flex items-center justify-between gap-2 mb-1.5 pb-1 border-b border-border/50 text-[10px] text-gold font-bold uppercase tracking-wider">
-                  <span>{msg.agent} Agent</span>
+                  <span>{msg.agent.endsWith('Agent') ? msg.agent : `${msg.agent} Agent`}</span>
                   <span className="text-gray-400 font-normal">{msg.timestamp}</span>
                 </div>
               )}
 
-              <div className="whitespace-pre-line leading-relaxed">{msg.text}</div>
+              {renderFormattedMessage(msg.text)}
 
               {/* Action Card Preview */}
               {msg.actionCard && (
@@ -289,7 +334,7 @@ export default function AIAssistant() {
       </div>
 
       {/* Quick Prompts Bar */}
-      <div className="flex gap-2 overflow-x-auto pb-1 shrink-0">
+      <div className="flex gap-2 overflow-x-auto pb-1 shrink-0 scrollbar-hide [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {QUICK_PROMPTS.map((prompt, idx) => (
           <button
             key={idx}

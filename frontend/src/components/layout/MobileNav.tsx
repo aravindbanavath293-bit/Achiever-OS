@@ -11,7 +11,7 @@ const navItems = [
   { to: '/goals', label: 'Goals', icon: Trophy },
   { to: '/sticky-notes', label: 'Sticky Notes', icon: StickyNote },
   { to: '/analytics', label: 'Analytics', icon: BarChart3 },
-  { to: '/ai-assistant', label: 'AI Assistant', icon: Bot },
+  { to: '/ai-assistant', label: 'AchieverOS AI Agent', icon: Bot },
   { to: '/settings', label: 'Settings', icon: Settings },
 ];
 
