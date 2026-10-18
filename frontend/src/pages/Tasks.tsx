@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
-import { Search, Filter, Plus, Clock, Edit2, Trash2, MoreVertical, CheckSquare } from 'lucide-react';
+import { Search, Filter, Plus, Clock, Edit2, Trash2, Check, Flag, Calendar, ChevronDown, CheckSquare } from 'lucide-react';
 import { useAppData } from '../context/AppDataContext';
-import { Task, Priority, TaskStatus, PRIORITY_CONFIG, CATEGORY_COLORS, DEFAULT_CATEGORIES, FilterOptions, SortConfig } from '../types';
-import { formatDate, formatTime, isTaskToday, isOverdue, getTodayISO } from '../utils/dateUtils';
+import { Task, Priority, TaskStatus, PRIORITY_CONFIG, CATEGORY_COLORS, DEFAULT_CATEGORIES, SortConfig } from '../types';
+import { formatDate, formatTime, isTaskToday, isOverdue, getRelativeDateLabel } from '../utils/dateUtils';
 import TaskModal from '../components/shared/TaskModal';
 import toast from 'react-hot-toast';
 
@@ -100,163 +100,255 @@ export default function Tasks() {
     { key: 'Personal', label: 'Personal' },
   ];
 
+  const getPriorityStyle = (priority: Priority) => {
+    switch (priority) {
+      case 'urgent':
+      case 'high':
+        return 'text-danger font-semibold';
+      case 'medium':
+        return 'text-amber-600 font-medium';
+      case 'low':
+      default:
+        return 'text-secondary-text font-normal';
+    }
+  };
+
   return (
-    <div className="space-y-4 animate-fade-in">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+    <div className="space-y-5 animate-fade-in">
+      {/* Page Header & Actions */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
-          <h1 className="text-headline-lg text-on-surface">Tasks</h1>
-          <p className="text-body-sm text-on-surface-variant">{filteredTasks.length} tasks shown</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary tracking-tight">Tasks</h1>
+          <p className="text-xs text-secondary-text mt-0.5">{filteredTasks.length} tasks matching criteria</p>
         </div>
+        <div className="flex items-center gap-2.5 w-full md:w-auto">
+          {/* Search bar */}
+          <div className="relative flex-1 md:w-64">
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-outline" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search tasks..."
+              className="w-full pl-9 pr-3.5 py-2 text-xs rounded-full border border-border bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-outline"
+            />
+          </div>
+          <button
+            onClick={() => { setEditingTask(null); setTaskModalOpen(true); }}
+            className="bg-primary hover:bg-primary-dark text-white px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs shrink-0 cursor-pointer"
+          >
+            <Plus size={15} /> Create New Task
+          </button>
+        </div>
+      </div>
+
+      {/* Filter Chips Bar */}
+      <div className="flex flex-wrap items-center gap-2 pb-1 border-b border-border/60">
         <button
-          onClick={() => { setEditingTask(null); setTaskModalOpen(true); }}
-          className="bg-primary text-on-primary px-4 py-2 rounded-lg text-body-md font-medium flex items-center gap-1.5 hover:bg-primary-light transition-colors shadow-sm cursor-pointer"
+          onClick={() => setShowMoreFilters(!showMoreFilters)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-colors cursor-pointer ${
+            showMoreFilters || statusFilter
+              ? 'bg-primary text-white border-primary'
+              : 'bg-surface-container border-border text-on-surface-variant hover:bg-surface-container-high'
+          }`}
         >
-          <Plus size={16} /> New Task
+          <Filter size={13} />
+          Filter
         </button>
-      </div>
 
-      {/* Search + Sort */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="flex-1 flex items-center bg-white border border-outline-variant rounded-lg px-3 py-2 focus-within:ring-2 ring-primary transition-all">
-          <Search size={16} className="text-on-surface-variant mr-2" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search tasks..."
-            className="bg-transparent border-none outline-none w-full text-body-md"
-          />
-        </div>
-        <select
-          value={`${sortConfig.by}-${sortConfig.direction}`}
-          onChange={(e) => {
-            const [by, dir] = e.target.value.split('-');
-            setSortConfig({ by: by as SortConfig['by'], direction: dir as SortConfig['direction'] });
-          }}
-          className="px-3 py-2 bg-white border border-outline-variant rounded-lg text-body-sm cursor-pointer outline-none focus:ring-2 ring-primary"
-        >
-          <option value="due_date-asc">Due Date ↑</option>
-          <option value="due_date-desc">Due Date ↓</option>
-          <option value="priority-asc">Priority ↑</option>
-          <option value="priority-desc">Priority ↓</option>
-          <option value="created_at-desc">Newest First</option>
-          <option value="title-asc">A → Z</option>
-        </select>
-      </div>
+        <div className="h-4 w-px bg-border mx-0.5 hidden sm:block" />
 
-      {/* Quick Filter Tabs */}
-      <div className="flex flex-wrap gap-1.5">
         {quickFilters.map(f => (
           <button
             key={f.key}
             onClick={() => setQuickFilter(f.key)}
-            className={`px-3 py-1.5 rounded-lg text-body-sm font-medium transition-all cursor-pointer ${
+            className={`px-3 py-1 rounded-full text-xs font-medium transition-all cursor-pointer whitespace-nowrap ${
               quickFilter === f.key
-                ? 'bg-primary text-on-primary'
-                : 'bg-white text-on-surface-variant border border-outline-variant hover:bg-surface-container-low'
+                ? 'bg-primary text-white font-semibold shadow-xs'
+                : 'bg-white text-on-surface-variant border border-border hover:bg-surface-container-low'
             }`}
           >
             {f.label}{f.count !== undefined ? ` (${f.count})` : ''}
           </button>
         ))}
+
         <button
           onClick={() => setShowMoreFilters(!showMoreFilters)}
-          className="px-3 py-1.5 rounded-lg text-body-sm font-medium bg-white text-on-surface-variant border border-outline-variant hover:bg-surface-container-low cursor-pointer flex items-center gap-1"
+          className="px-3 py-1 rounded-full text-xs font-medium bg-white text-on-surface-variant border border-border hover:bg-surface-container-low cursor-pointer flex items-center gap-1 ml-auto sm:ml-0"
         >
-          <Filter size={14} /> More
+          More <ChevronDown size={13} />
         </button>
+
+        {/* Sort selector */}
+        <div className="ml-auto flex items-center gap-1.5 text-xs text-secondary-text">
+          <span className="hidden sm:inline">Sort:</span>
+          <select
+            value={`${sortConfig.by}-${sortConfig.direction}`}
+            onChange={(e) => {
+              const [by, dir] = e.target.value.split('-');
+              setSortConfig({ by: by as SortConfig['by'], direction: dir as SortConfig['direction'] });
+            }}
+            className="px-2.5 py-1 bg-white border border-border rounded-lg text-xs cursor-pointer outline-none focus:border-primary"
+          >
+            <option value="due_date-asc">Due Date ↑</option>
+            <option value="due_date-desc">Due Date ↓</option>
+            <option value="priority-asc">Priority ↑</option>
+            <option value="priority-desc">Priority ↓</option>
+            <option value="created_at-desc">Newest First</option>
+            <option value="title-asc">A → Z</option>
+          </select>
+        </div>
       </div>
 
-      {/* More Filters */}
+      {/* Expanded More Filters Drawer */}
       {showMoreFilters && (
-        <div className="flex flex-wrap gap-2 p-3 bg-white border border-outline-variant rounded-lg animate-fade-in">
+        <div className="flex flex-wrap items-center gap-2 p-3 bg-white border border-border rounded-xl shadow-xs animate-fade-in">
+          <span className="text-xs font-semibold text-primary">Status:</span>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as TaskStatus | '')}
-            className="px-3 py-1.5 border border-outline-variant rounded-lg text-body-sm bg-white cursor-pointer outline-none"
+            className="px-2.5 py-1 border border-border rounded-lg text-xs bg-white cursor-pointer outline-none"
           >
             <option value="">All Statuses</option>
             <option value="todo">To Do</option>
             <option value="in-progress">In Progress</option>
             <option value="completed">Completed</option>
           </select>
+
+          <span className="text-xs font-semibold text-primary ml-2">All Categories:</span>
           {DEFAULT_CATEGORIES.filter(c => !quickFilters.some(q => q.key === c)).map(c => (
             <button
               key={c}
               onClick={() => setQuickFilter(quickFilter === c ? 'all' : c)}
-              className={`px-3 py-1.5 rounded-lg text-body-sm font-medium transition-all cursor-pointer ${
+              className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all cursor-pointer ${
                 quickFilter === c
-                  ? 'bg-primary text-on-primary'
+                  ? 'bg-primary text-white'
                   : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container'
               }`}
             >
               {c}
             </button>
           ))}
+          {statusFilter && (
+            <button
+              onClick={() => setStatusFilter('')}
+              className="text-xs text-danger hover:underline ml-auto cursor-pointer"
+            >
+              Clear Status Filter
+            </button>
+          )}
         </div>
       )}
 
-      {/* Task List */}
-      <div className="bg-white rounded-xl border border-surface-container-highest divide-y divide-surface-container-highest">
+      {/* Discrete Task Cards Container (Reference Design Matching) */}
+      <div className="flex flex-col gap-2.5">
         {filteredTasks.length === 0 && (
-          <div className="text-center py-12">
-            <CheckSquare size={40} className="mx-auto text-outline-variant mb-3" />
-            <p className="text-body-md text-on-surface-variant">No tasks found</p>
-            <p className="text-body-sm text-outline mt-1">Try adjusting your filters or create a new task</p>
+          <div className="text-center py-14 bg-white rounded-xl border border-border">
+            <CheckSquare size={38} className="mx-auto text-outline-variant mb-2.5" />
+            <p className="text-sm font-semibold text-on-surface">No tasks found</p>
+            <p className="text-xs text-secondary-text mt-1">Try adjusting your filters or click Create New Task</p>
           </div>
         )}
-        {filteredTasks.map(task => (
-          <div
-            key={task.id}
-            className={`flex items-center gap-3 px-4 py-3 hover:bg-surface-container-low transition-colors group ${
-              task.status === 'completed' ? 'opacity-50' : ''
-            }`}
-          >
-            <input
-              type="checkbox"
-              checked={task.status === 'completed'}
-              onChange={() => toggleTask(task.id)}
-              className={`w-4.5 h-4.5 rounded cursor-pointer shrink-0 ${
-                task.priority === 'urgent' || task.priority === 'high'
-                  ? 'border-danger text-danger focus:ring-danger'
-                  : 'border-primary text-primary focus:ring-primary'
+
+        {filteredTasks.map(task => {
+          const isCompleted = task.status === 'completed';
+          const priorityStyle = getPriorityStyle(task.priority);
+
+          return (
+            <div
+              key={task.id}
+              onClick={() => handleEditTask(task)}
+              className={`group flex items-start gap-3.5 p-3.5 sm:p-4 bg-white border border-border rounded-xl hover:bg-surface-container-low hover:border-outline/40 transition-all cursor-pointer shadow-xs ${
+                isCompleted ? 'opacity-65 bg-surface-container-low/50' : ''
               }`}
-            />
-            <div className="flex-1 min-w-0">
-              <p className={`text-body-md font-medium text-on-surface truncate ${task.status === 'completed' ? 'line-through' : ''}`}>
-                {task.title}
-              </p>
-              <div className="flex gap-1.5 mt-0.5 flex-wrap">
-                <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold ${PRIORITY_CONFIG[task.priority]?.bg || ''} ${PRIORITY_CONFIG[task.priority]?.color || ''}`}>
-                  {PRIORITY_CONFIG[task.priority]?.label}
-                </span>
-                <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold ${CATEGORY_COLORS[task.category]?.bg || 'bg-surface-container-high'} ${CATEGORY_COLORS[task.category]?.text || 'text-on-surface-variant'}`}>
-                  {task.category}
-                </span>
-                {task.due_time && (
-                  <span className="text-metadata text-outline flex items-center gap-0.5">
-                    <Clock size={11} /> {formatTime(task.due_time)}
+            >
+              {/* Checkbox button */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleTask(task.id);
+                }}
+                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors shrink-0 mt-0.5 cursor-pointer ${
+                  isCompleted
+                    ? 'bg-primary border-primary text-white'
+                    : 'border-outline hover:border-primary bg-white group-hover:border-primary'
+                }`}
+                title={isCompleted ? 'Mark incomplete' : 'Mark complete'}
+              >
+                {isCompleted && <Check size={14} className="stroke-[3]" />}
+              </button>
+
+              {/* Task Content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-3">
+                  <h3
+                    className={`text-sm sm:text-[15px] font-medium text-on-surface truncate ${
+                      isCompleted ? 'line-through text-outline' : ''
+                    }`}
+                  >
+                    {task.title}
+                  </h3>
+
+                  {/* Actions on hover */}
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditTask(task);
+                      }}
+                      className="p-1 text-secondary-text hover:text-primary transition-colors cursor-pointer"
+                      title="Edit task"
+                    >
+                      <Edit2 size={15} />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        confirmDelete(task.id);
+                      }}
+                      className="p-1 text-secondary-text hover:text-danger transition-colors cursor-pointer"
+                      title="Delete task"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Metadata Pills & Flags */}
+                <div className="flex flex-wrap items-center gap-2.5 mt-1.5">
+                  <span className={`inline-flex items-center gap-1 text-xs ${priorityStyle}`}>
+                    <Flag size={12} /> {PRIORITY_CONFIG[task.priority]?.label || task.priority}
                   </span>
-                )}
-                {isOverdue(task.due_date) && task.status !== 'completed' && (
-                  <span className="text-metadata text-danger font-medium">Overdue</span>
-                )}
+
+                  <span className="inline-flex items-center gap-1 text-xs text-secondary-text">
+                    <Calendar size={12} /> {getRelativeDateLabel(task.due_date)}
+                  </span>
+
+                  {task.due_time && (
+                    <span className="inline-flex items-center gap-1 text-xs text-secondary-text">
+                      <Clock size={12} /> {formatTime(task.due_time)}
+                    </span>
+                  )}
+
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold ${
+                      CATEGORY_COLORS[task.category]?.bg || 'bg-surface-container-high'
+                    } ${CATEGORY_COLORS[task.category]?.text || 'text-on-surface-variant'}`}
+                  >
+                    {task.category}
+                  </span>
+
+                  {isOverdue(task.due_date) && !isCompleted && (
+                    <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-bold bg-red-100 text-danger">
+                      Overdue
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
-            <div className="hidden sm:block text-metadata text-outline shrink-0">
-              {formatDate(task.due_date, 'MMM d')}
-            </div>
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button onClick={() => handleEditTask(task)} className="p-1 text-outline hover:text-primary cursor-pointer" title="Edit">
-                <Edit2 size={15} />
-              </button>
-              <button onClick={() => confirmDelete(task.id)} className="p-1 text-outline hover:text-danger cursor-pointer" title="Delete">
-                <Trash2 size={15} />
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Task Modal */}
