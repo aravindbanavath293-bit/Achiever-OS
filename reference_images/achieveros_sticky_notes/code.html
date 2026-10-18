@@ -1,0 +1,233 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Sticky Notes - AchieverOS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#fbf8fb",
+                        "on-secondary-container": "#626566",
+                        "on-tertiary-fixed-variant": "#41474e",
+                        "on-surface-variant": "#44474d",
+                        "background": "#fbf8fb",
+                        "surface-tint": "#515f7a",
+                        "on-secondary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#c5c7c8",
+                        "primary-container": "#3e4c67",
+                        "primary-fixed": "#d7e3ff",
+                        "surface-container-low": "#f5f3f5",
+                        "tertiary-fixed-dim": "#c1c7cf",
+                        "on-tertiary-fixed": "#161c22",
+                        "tertiary-container": "#464d53",
+                        "primary": "#27354f",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#dde3eb",
+                        "outline-variant": "#c5c6ce",
+                        "on-primary-fixed-variant": "#394762",
+                        "secondary": "#5c5f60",
+                        "on-surface": "#1b1b1d",
+                        "secondary-fixed": "#e1e3e4",
+                        "surface-bright": "#fbf8fb",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#b8c7e7",
+                        "inverse-primary": "#b8c7e7",
+                        "inverse-surface": "#303032",
+                        "on-background": "#1b1b1d",
+                        "on-secondary-fixed-variant": "#454748",
+                        "inverse-on-surface": "#f2f0f2",
+                        "on-secondary-fixed": "#191c1d",
+                        "surface-variant": "#e4e2e4",
+                        "on-tertiary-container": "#b7bdc5",
+                        "on-primary-fixed": "#0c1b34",
+                        "tertiary": "#30363c",
+                        "on-primary-container": "#aebddd",
+                        "on-error": "#ffffff",
+                        "surface-container-highest": "#e4e2e4",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#e1e3e4",
+                        "on-primary": "#ffffff",
+                        "outline": "#75777e",
+                        "surface-dim": "#dbd9dc",
+                        "surface-container": "#efedf0",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-high": "#eae7ea",
+                        "note-yellow": "#fdf1c3",
+                        "note-blue": "#d4ecee",
+                        "note-pink": "#fcd5d7",
+                        "note-orange": "#fedac1",
+                        "note-empty": "#ececec",
+                        "bg-sage": "#b5c2af"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem",
+                        "note": "8px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "xs": "4px",
+                        "container-max": "1200px",
+                        "md": "16px",
+                        "base": "4px",
+                        "sm": "8px",
+                        "gutter": "20px",
+                        "lg": "24px",
+                        "note-size": "260px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Inter"],
+                        "display": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "title-task": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "metadata": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "title-task": ["16px", { "lineHeight": "24px", "fontWeight": "500" }],
+                        "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }],
+                        "body-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "metadata": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-bg-sage min-h-screen text-on-background flex overflow-hidden">
+<!-- SideNavBar -->
+<nav class="w-64 h-screen fixed left-0 top-0 border-r border-outline-variant bg-surface flex flex-col py-lg px-md z-50">
+<!-- Header -->
+<div class="flex items-center gap-3 mb-8 px-2">
+<img alt="User profile photo" class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6TT8XXYSryvdJI3csX6MLeTy3-tHqvWzy-k5ezlE1g11JhvFSC2sXhpHvRnwcw7pGcR_Xyn7RW6wjfxCf0PhvgfREGZONp-asbQ9aIMGtEkZOwQpdH_tUbeBUUhz87p1im-0GnUu-w-vV4texVL1k_3CFeBoLmlBMvumWiuK2uiwKTVaDhUF6BUxMl4mFoIaBm5gqX41RfUSCGYxci_57pSEQLS14z0zp9jRp6w7DSk7X30Hf8jaPXdT6I-5YuulunA">
+<div>
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary">AchieverOS</h1>
+<p class="font-metadata text-metadata text-on-surface-variant">Productivity Engine</p>
+</div>
+</div>
+<!-- CTA -->
+<button class="w-full mb-6 bg-primary text-on-primary py-2 px-4 rounded-lg font-label-caps text-label-caps hover:bg-primary-container hover:text-on-primary-container transition-colors duration-200">
+            Create New Task
+        </button>
+<!-- Navigation Tabs -->
+<div class="flex-1 overflow-y-auto space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined text-xl">dashboard</span>
+<span class="font-body-md text-body-md font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined text-xl">checklist</span>
+<span class="font-body-md text-body-md font-medium">Tasks</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined text-xl">event_repeat</span>
+<span class="font-body-md text-body-md font-medium">Daily Planner</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined text-xl">calendar_view_week</span>
+<span class="font-body-md text-body-md font-medium">Weekly Timetable</span>
+</a><a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined text-xl">assignment</span>
+<span class="font-body-md text-body-md font-medium">Weekly To-Do List</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined text-xl">emoji_events</span>
+<span class="font-body-md text-body-md font-medium">Goals</span>
+</a>
+
+<!-- Sticky Notes - Active -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-high transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: &quot;FILL&quot; 1;">sticky_note_2</span>
+<span class="font-body-md text-body-md">Sticky Notes</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined text-xl">settings</span>
+<span class="font-body-md text-body-md font-medium">Settings</span>
+</a>
+</div>
+<!-- Footer Tabs -->
+<div class="mt-auto pt-4 border-t border-outline-variant space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-xl">help</span>
+<span class="font-body-md text-body-md font-medium">Help</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-xl">logout</span>
+<span class="font-body-md text-body-md font-medium">Logout</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="ml-64 flex-1 h-screen overflow-y-auto flex items-center justify-center p-8">
+<!-- White Canvas Container -->
+<div class="bg-surface rounded-2xl shadow-sm w-full max-w-[1000px] min-h-[700px] p-12 relative">
+<!-- Header -->
+<div class="mb-10">
+<h2 class="font-display text-display text-[#2b2b2b]">Sticky Notes</h2>
+</div>
+<!-- Notes Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-max">
+<!-- Social Media Note -->
+<div class="bg-note-yellow rounded-note p-6 w-note-size h-note-size shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:-translate-y-1 transition-transform duration-200 cursor-pointer">
+<h3 class="font-headline-md text-headline-md text-[#2b2b2b] mb-4">Social Media</h3>
+<ul class="font-body-sm text-body-sm text-[#4a4a4a] space-y-1">
+<li class="">- Plan social content</li>
+<li class="">- Build content calendar</li>
+<li class="">- Plan promotion and distribution</li>
+</ul>
+</div>
+<!-- Content Strategy Note -->
+<div class="bg-note-blue rounded-note p-6 w-note-size h-note-size shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:-translate-y-1 transition-transform duration-200 cursor-pointer">
+<h3 class="font-headline-md text-headline-md text-[#2b2b2b] mb-4">Content Strategy</h3>
+<p class="font-body-sm text-body-sm text-[#4a4a4a] leading-relaxed">
+                        Would need time to get insights (goals, personals, budget, audits), but after, it would be good to focus on assembling my team (start with SEO specialist, then perhaps an email marketer?). Also need to brainstorm on tooling.
+                    </p>
+</div>
+<!-- Email A/B Tests Note -->
+<div class="bg-note-pink rounded-note p-6 w-note-size h-note-size shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:-translate-y-1 transition-transform duration-200 cursor-pointer">
+<h3 class="font-headline-md text-headline-md text-[#2b2b2b] mb-4">Email A/B Tests</h3>
+<ul class="font-body-sm text-body-sm text-[#4a4a4a] space-y-1">
+<li class="">- Subject lines</li>
+<li class="">- Sender</li>
+<li class="">- CTA</li>
+<li class="">- Sending times</li>
+</ul>
+</div>
+<!-- Banner Ads Note -->
+<div class="bg-note-orange rounded-note p-6 w-note-size h-note-size shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:-translate-y-1 transition-transform duration-200 cursor-pointer">
+<h3 class="font-headline-md text-headline-md text-[#2b2b2b] mb-4">Banner Ads</h3>
+<p class="font-body-sm text-body-sm text-[#4a4a4a] mb-2">Notes from the workshop:</p>
+<ul class="font-body-sm text-body-sm text-[#4a4a4a] space-y-1">
+<li class="">- Sizing matters</li>
+<li class="">- Choose distinctive imagery</li>
+<li class="">- The landing page must match the display ad</li>
+</ul>
+</div>
+<!-- Add New Note -->
+<div class="bg-note-empty rounded-note p-6 w-note-size h-note-size flex items-center justify-center border-2 border-dashed border-transparent hover:border-[#d1d1d1] transition-all duration-200 cursor-pointer group">
+<span class="material-symbols-outlined text-[48px] text-[#8e8e8e] group-hover:text-[#5e5e5e] group-hover:scale-110 transition-all duration-200">add</span>
+</div>
+</div>
+</div>
+</main>
+
+
+</body></html>

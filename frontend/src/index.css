@@ -1,0 +1,236 @@
+@import "tailwindcss";
+
+/* ── AchieverOS Design System ── */
+
+@theme {
+  /* Brand Colors */
+  --color-primary: #203451;
+  --color-primary-dark: #172942;
+  --color-primary-light: #3e4c67;
+  --color-primary-fixed: #d7e3ff;
+  --color-on-primary: #ffffff;
+  --color-on-primary-fixed: #0c1b34;
+  
+  --color-gold: #C9A34E;
+  --color-gold-light: #e8d5a0;
+  --color-gold-dark: #a07f2e;
+  
+  /* Surface Colors */
+  --color-background: #F8F6F9;
+  --color-surface: #FFFFFF;
+  --color-surface-dim: #dbd9dc;
+  --color-surface-container: #efedf0;
+  --color-surface-container-low: #f5f3f5;
+  --color-surface-container-high: #eae7ea;
+  --color-surface-container-highest: #e4e2e4;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-variant: #e4e2e4;
+  --color-surface-bright: #fbf8fb;
+  
+  /* Text Colors */
+  --color-on-surface: #17243A;
+  --color-on-surface-variant: #667085;
+  --color-on-background: #1b1b1d;
+  --color-secondary-text: #667085;
+  --color-outline: #75777e;
+  --color-outline-variant: #c5c6ce;
+  
+  /* Semantic Colors */
+  --color-success: #4C9B73;
+  --color-success-light: #dcf5e7;
+  --color-warning: #E7A23B;
+  --color-warning-light: #fef3c7;
+  --color-danger: #D94B50;
+  --color-danger-light: #fde8e8;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error: #ffffff;
+  --color-on-error-container: #93000a;
+  
+  /* Priority Colors */
+  --color-priority-high: #D94B50;
+  --color-priority-medium: #E7A23B;
+  --color-priority-low: #4C9B73;
+  --color-priority-urgent: #ba1a1a;
+  
+  /* Note Colors */
+  --color-note-yellow: #fef3c7;
+  --color-note-blue: #e0f2fe;
+  --color-note-pink: #fce7f3;
+  --color-note-orange: #ffedd5;
+  --color-note-green: #dcfce7;
+  
+  /* Day Colors (for weekly todo) */
+  --color-day-mon: #e0e7ff;
+  --color-day-tue: #fce7f3;
+  --color-day-wed: #dcfce7;
+  --color-day-thu: #fef3c7;
+  --color-day-fri: #e0f2fe;
+  --color-day-sat: #ede9fe;
+  --color-day-sun: #ffedd5;
+  
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-handwriting: 'Caveat', cursive;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+/* ── Base Styles ── */
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  body {
+    background-color: var(--color-background);
+    color: var(--color-on-background);
+    line-height: 1.5;
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-outline-variant);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-outline);
+  }
+}
+
+/* ── Component Utilities ── */
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .text-display {
+    font-size: 32px;
+    line-height: 40px;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+  
+  .text-headline-lg {
+    font-size: 24px;
+    line-height: 32px;
+    letter-spacing: -0.01em;
+    font-weight: 600;
+  }
+  
+  .text-headline-md {
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: 600;
+  }
+  
+  .text-title-task {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 500;
+  }
+  
+  .text-body-md {
+    font-size: 14px;
+    line-height: 22px;
+    font-weight: 400;
+  }
+  
+  .text-body-sm {
+    font-size: 13px;
+    line-height: 20px;
+    font-weight: 400;
+  }
+  
+  .text-label-caps {
+    font-size: 11px;
+    line-height: 16px;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  
+  .text-metadata {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 400;
+  }
+}
+
+/* ── Animations ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.2s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.15s ease-out forwards;
+}
+
+/* ── Toast Styles ── */
+.toast-container > div {
+  font-family: var(--font-sans) !important;
+  font-size: 14px !important;
+}
