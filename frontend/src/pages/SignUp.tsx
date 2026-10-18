@@ -38,7 +38,7 @@ export default function SignUp() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center items-center p-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-[420px] mx-auto">
         {/* Brand Header */}
         <div className="flex flex-col items-center gap-2 mb-6 text-center">
           <Link to="/" className="flex items-center gap-2.5">

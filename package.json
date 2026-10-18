@@ -1,0 +1,26 @@
+{
+  "name": "achiever-os",
+  "version": "1.0.0",
+  "description": "AchieverOS — AI-Powered Personal Productivity Operating System",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "preview": "npm --prefix frontend run preview",
+    "start": "npm --prefix frontend run dev",
+    "test:frontend": "npm --prefix frontend run test",
+    "test:backend": "cd backend && pytest app/tests/ -v",
+    "test": "npm --prefix frontend run build"
+  },
+  "keywords": [
+    "productivity",
+    "ai-agent",
+    "achiever-os",
+    "planner",
+    "timetable",
+    "fastapi",
+    "react"
+  ],
+  "author": "AchieverOS Team",
+  "license": "MIT"
+}
