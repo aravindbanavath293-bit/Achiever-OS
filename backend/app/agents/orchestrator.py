@@ -25,8 +25,28 @@ class CentralOrchestrator:
         p_lower = prompt.lower()
         selected_agent_name = "Central Orchestrator"
 
+        greeting_words = ["hi", "hello", "hey", "hiii", "hiya", "howdy", "sup", "good morning", "good afternoon", "good evening", "who are you", "what can you do", "help"]
+        is_greeting = any(p_lower == w or p_lower.startswith(w + " ") or p_lower.startswith(w + "!") or p_lower.startswith(w + ",") for w in greeting_words)
+
         # Routing logic
-        if any(w in p_lower for w in ["plan my day", "daily plan", "schedule", "timetable", "time block"]):
+        if is_greeting and not any(k in p_lower for k in ["task", "plan", "goal", "schedule", "remind", "todo", "deadline"]):
+            selected_agent_name = "AchieverOS AI Agent"
+            async def greeting_coro():
+                return {
+                    "agent": "AchieverOS AI Agent",
+                    "response": (
+                        "Hello! I am your AchieverOS AI Agent. I'm here to help you stay focused, organized, and productive.\n\n"
+                        "Here is what I can do for you:\n"
+                        "• **Plan Your Day:** Try asking *'Plan my day around today's deadlines'*\n"
+                        "• **Break Down Goals:** Try *'Break down learning TypeScript into a 4-week goal'*\n"
+                        "• **Manage Tasks:** Try *'Add task: Review the quarterly roadmap tomorrow morning'*\n"
+                        "• **Search Notes:** Try *'Search my notes for architecture ideas'*\n\n"
+                        "How can I assist you right now?"
+                    ),
+                    "actionCard": None
+                }
+            agent_coro = greeting_coro()
+        elif any(w in p_lower for w in ["plan my day", "daily plan", "schedule", "timetable", "time block"]):
             selected_agent_name = "Planner"
             agent_coro = self.planner.generate_plan(prompt)
         elif any(w in p_lower for w in ["goal", "milestone", "roadmap", "break down"]):

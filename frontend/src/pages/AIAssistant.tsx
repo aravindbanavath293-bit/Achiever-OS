@@ -42,7 +42,7 @@ export default function AIAssistant() {
       id: 'welcome',
       sender: 'assistant',
       agent: 'Orchestrator',
-      text: `Hello ${user?.name || 'Aravind'}! I am your AchieverOS AI Productivity Assistant powered by NVIDIA Nemotron and multi-agent coordination. I have direct context on your ${tasks.length} tasks, ${goals.length} goals, and ${notes.length} sticky notes.\n\nHow can I optimize your workflow today?`,
+      text: `Hello ${user?.name || 'Alex'}! I am your AchieverOS AI Agent. I have direct context on your ${tasks.length} tasks, ${goals.length} goals, and ${notes.length} sticky notes.\n\nHow can I optimize your workflow today?`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -212,11 +212,8 @@ export default function AIAssistant() {
         <div>
           <h1 className="text-xl font-bold text-primary flex items-center gap-2">
             <Bot size={22} className="text-gold" />
-            AI Productivity Assistant
+            AchieverOS AI Agent
           </h1>
-          <p className="text-xs text-on-surface-variant mt-0.5">
-            Multi-agent orchestrator with semantic RAG retrieval and Nemotron intelligence
-          </p>
         </div>
 
         {/* Multi-Agent Badge */}
