@@ -1,3 +1,4 @@
+import uuid
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
@@ -5,21 +6,26 @@ from app.main import app
 client = TestClient(app)
 
 def test_user_data_isolation():
+    u1_email = f"user1_{uuid.uuid4().hex[:8]}@test.com"
+    u2_email = f"user2_{uuid.uuid4().hex[:8]}@test.com"
+
     # User 1 registers
     u1_res = client.post("/api/v1/auth/register", json={
-        "email": "user1_isolation@test.com",
+        "email": u1_email,
         "name": "User One",
         "password": "SecretPassword123!"
     })
+    assert u1_res.status_code == 200, u1_res.text
     u1_token = u1_res.json()["access_token"]
     u1_headers = {"Authorization": f"Bearer {u1_token}"}
 
     # User 2 registers
     u2_res = client.post("/api/v1/auth/register", json={
-        "email": "user2_isolation@test.com",
+        "email": u2_email,
         "name": "User Two",
         "password": "SecretPassword123!"
     })
+    assert u2_res.status_code == 200, u2_res.text
     u2_token = u2_res.json()["access_token"]
     u2_headers = {"Authorization": f"Bearer {u2_token}"}
 
