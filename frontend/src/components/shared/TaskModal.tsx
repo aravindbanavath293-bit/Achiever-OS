@@ -98,18 +98,19 @@ export default function TaskModal({ isOpen, onClose, onSave, task, mode = 'creat
   return (
     <>
       <div className="fixed inset-0 bg-black/40 z-50" onClick={onClose} />
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg w-full max-w-lg max-h-[90vh] overflow-y-auto animate-scale-in">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
+        <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[88vh] flex flex-col animate-scale-in border border-border overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant">
-            <h2 className="text-headline-md text-on-surface">{mode === 'edit' ? 'Edit Task' : 'Create New Task'}</h2>
-            <button onClick={onClose} className="text-on-surface-variant hover:text-on-surface p-1 cursor-pointer">
-              <X size={20} />
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-border shrink-0 bg-white">
+            <h2 className="text-base sm:text-lg font-bold text-primary">{mode === 'edit' ? 'Edit Task' : 'Create New Task'}</h2>
+            <button onClick={onClose} className="text-secondary-text hover:text-on-surface p-1 rounded-md transition-colors cursor-pointer">
+              <X size={18} />
             </button>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+            <div className="p-5 space-y-3.5 overflow-y-auto flex-1">
             {/* Title */}
             <div>
               <label className="text-body-sm font-medium text-on-surface block mb-1">Task Title *</label>
@@ -279,18 +280,20 @@ export default function TaskModal({ isOpen, onClose, onSave, task, mode = 'creat
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex justify-end gap-3 pt-3 border-t border-outline-variant">
+            </div>
+
+            {/* Actions - Sticky Footer */}
+            <div className="flex items-center justify-end gap-2.5 px-5 py-3 border-t border-border bg-surface-container-low shrink-0">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-body-md font-medium text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-colors cursor-pointer"
+                className="px-3.5 py-2 text-xs font-semibold text-secondary-text hover:text-on-surface hover:bg-surface-container rounded-lg transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 bg-primary text-on-primary text-body-md font-medium rounded-lg hover:bg-primary-light transition-colors shadow-sm cursor-pointer"
+                className="px-4 py-2 bg-primary hover:bg-primary-dark text-white text-xs font-semibold rounded-lg transition-colors shadow-xs cursor-pointer"
               >
                 {mode === 'edit' ? 'Save Changes' : 'Create Task'}
               </button>
