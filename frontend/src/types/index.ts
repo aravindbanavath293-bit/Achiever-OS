@@ -126,7 +126,7 @@ export interface StickyNote {
   updated_at: string;
 }
 
-export type NoteColor = 'yellow' | 'blue' | 'pink' | 'orange' | 'green';
+export type NoteColor = 'yellow' | 'blue' | 'pink' | 'orange' | 'green' | 'purple';
 
 export interface ActivityLog {
   id: string;
@@ -197,35 +197,44 @@ export interface SortConfig {
 // ── Color Mappings ──
 
 export const CATEGORY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  Study: { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-300' },
-  Career: { bg: 'bg-primary-fixed', text: 'text-on-primary-fixed', border: 'border-primary' },
-  Work: { bg: 'bg-surface-variant', text: 'text-on-surface-variant', border: 'border-outline-variant' },
-  Personal: { bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-300' },
-  Health: { bg: 'bg-emerald-100', text: 'text-emerald-800', border: 'border-emerald-300' },
-  Finance: { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-300' },
-  Projects: { bg: 'bg-orange-100', text: 'text-orange-800', border: 'border-orange-300' },
-  Exams: { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-300' },
-  Design: { bg: 'bg-primary-fixed', text: 'text-on-primary-fixed', border: 'border-primary' },
-  Meeting: { bg: 'bg-surface-container-high', text: 'text-on-surface-variant', border: 'border-outline-variant' },
-  Other: { bg: 'bg-surface-container-high', text: 'text-on-surface-variant', border: 'border-outline-variant' },
+  Study: { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-200' },
+  Career: { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200' },
+  Work: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
+  Personal: { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200' },
+  Health: { bg: 'bg-sky-50', text: 'text-sky-700', border: 'border-sky-200' },
+  Finance: { bg: 'bg-amber-50', text: 'text-amber-800', border: 'border-amber-200' },
+  Projects: { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200' },
+  Exams: { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200' },
+  Design: { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-200' },
+  Meeting: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' },
+  Other: { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-200' },
 };
 
 export const PRIORITY_CONFIG: Record<Priority, { label: string; color: string; bg: string; border: string }> = {
-  urgent: { label: 'Urgent', color: 'text-danger', bg: 'bg-danger-light', border: 'border-danger' },
-  high: { label: 'High', color: 'text-danger', bg: 'bg-danger-light', border: 'border-danger' },
-  medium: { label: 'Medium', color: 'text-warning', bg: 'bg-warning-light', border: 'border-warning' },
-  low: { label: 'Low', color: 'text-success', bg: 'bg-success-light', border: 'border-success' },
+  urgent: { label: 'Urgent', color: 'text-rose-700', bg: 'bg-rose-50', border: 'border-rose-200' },
+  high: { label: 'High', color: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-200' },
+  medium: { label: 'Medium', color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-200' },
+  low: { label: 'Low', color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200' },
 };
 
 export const NOTE_COLOR_VALUES: Record<NoteColor, string> = {
-  yellow: '#fef3c7',
-  blue: '#e0f2fe',
-  pink: '#fce7f3',
-  orange: '#ffedd5',
-  green: '#dcfce7',
+  yellow: '#FCF8EC', // Light Gold / Champagne
+  blue: '#EFF4FF',   // Sapphire Mist
+  pink: '#FBF3F1',   // Rose Gold Blush
+  orange: '#FDF5EE', // Warm Copper
+  green: '#F8F9FC',  // Diamond White
+  purple: '#F4F0FA', // Soft Lilac / Lavender
 };
 
 export const EVENT_COLORS = [
-  '#4f46e5', '#0891b2', '#059669', '#d97706', '#dc2626',
-  '#7c3aed', '#db2777', '#2563eb', '#16a34a', '#ea580c',
+  '#A85B49', // Rose Gold / Copper
+  '#5E359E', // Deep Purple / Plum
+  '#C29526', // Light Gold / Amber
+  '#1D4ED8', // Sapphire Blue
+  '#E11D48', // Coral Red
+  '#8E4939', // Burnished Copper
+  '#7C52BE', // Royal Lilac
+  '#1E40AF', // Deep Sapphire
+  '#B86B58', // Soft Rose Gold
+  '#4A2574', // Royal Plum
 ];

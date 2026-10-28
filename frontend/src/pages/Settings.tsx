@@ -1,13 +1,17 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { 
-  User, Sun, Moon, Monitor, Bell, Shield, KeyRound, 
-  Trash2, CheckCircle2, AlertTriangle, Save 
+  User, Sun, Moon, Bell, Shield, KeyRound, 
+  Trash2, CheckCircle2, AlertTriangle, Save, Sparkles 
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import toast from 'react-hot-toast';
+import { BentoCard } from '../components/bento/Bento';
 
 export default function Settings() {
   const { user, updateUser } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState<'profile' | 'appearance' | 'notifications' | 'security'>('profile');
 
   // Profile form
@@ -15,9 +19,6 @@ export default function Settings() {
   const [email, setEmail] = useState(user?.email || 'aravind@achieveros.com');
   const [bio, setBio] = useState('Full-Stack Engineer & Productivity Architect');
   const [avatarUrl, setAvatarUrl] = useState(user?.avatar || '');
-
-  // Theme
-  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('light');
 
   // Notifications
   const [inAppAlerts, setInAppAlerts] = useState(true);
@@ -72,25 +73,25 @@ export default function Settings() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Top Header */}
-      <div className="bg-white p-4 rounded-xl border border-border shadow-xs">
-        <h1 className="text-xl font-bold text-primary">System Settings</h1>
-        <p className="text-xs text-on-surface-variant mt-0.5">
-          Manage your personal profile, workspace preferences, notification feeds, and account security
+    <div className="space-y-6 animate-fade-in">
+      {/* Top Header Feature Card */}
+      <BentoCard span="full" variant="feature" className="p-5 md:p-6">
+        <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">System Settings</h1>
+        <p className="text-xs text-slate-500 font-medium mt-0.5">
+          Manage your personal profile, workspace preferences, appearance theme, notification feeds, and security
         </p>
-      </div>
+      </BentoCard>
 
       {/* Main Settings Layout: Tabs + Content */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Navigation Sidebar (4 cols) */}
-        <div className="md:col-span-4 bg-white p-3 rounded-xl border border-border shadow-xs space-y-1 h-fit">
+        <div className="md:col-span-4 bg-white p-3 rounded-2xl border border-slate-200/90 shadow-sm space-y-1.5 h-fit">
           <button
             onClick={() => setActiveTab('profile')}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-left ${
+            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-left ${
               activeTab === 'profile'
-                ? 'bg-primary text-white shadow-2xs'
-                : 'text-on-surface-variant hover:bg-surface-container hover:text-primary'
+                ? 'gradient-primary text-white shadow-xs'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
             }`}
           >
             <User size={16} />
@@ -99,10 +100,10 @@ export default function Settings() {
 
           <button
             onClick={() => setActiveTab('appearance')}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-left ${
+            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-left ${
               activeTab === 'appearance'
-                ? 'bg-primary text-white shadow-2xs'
-                : 'text-on-surface-variant hover:bg-surface-container hover:text-primary'
+                ? 'gradient-primary text-white shadow-xs'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
             }`}
           >
             <Sun size={16} />
@@ -111,10 +112,10 @@ export default function Settings() {
 
           <button
             onClick={() => setActiveTab('notifications')}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-left ${
+            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-left ${
               activeTab === 'notifications'
-                ? 'bg-primary text-white shadow-2xs'
-                : 'text-on-surface-variant hover:bg-surface-container hover:text-primary'
+                ? 'gradient-primary text-white shadow-xs'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
             }`}
           >
             <Bell size={16} />
@@ -123,10 +124,10 @@ export default function Settings() {
 
           <button
             onClick={() => setActiveTab('security')}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-left ${
+            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-left ${
               activeTab === 'security'
-                ? 'bg-primary text-white shadow-2xs'
-                : 'text-on-surface-variant hover:bg-surface-container hover:text-primary'
+                ? 'gradient-primary text-white shadow-xs'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
             }`}
           >
             <Shield size={16} />
@@ -135,63 +136,64 @@ export default function Settings() {
         </div>
 
         {/* Content Area (8 cols) */}
-        <div className="md:col-span-8 bg-white p-6 rounded-xl border border-border shadow-xs">
+        <div className="md:col-span-8 bg-white p-6 md:p-7 rounded-2xl border border-slate-200/90 shadow-sm">
           {/* Profile Tab */}
           {activeTab === 'profile' && (
             <form onSubmit={handleSaveProfile} className="space-y-5">
-              <div className="flex items-center gap-4 pb-4 border-b border-border">
-                <div className="w-16 h-16 rounded-full bg-primary text-white font-bold text-xl flex items-center justify-center border-2 border-gold shadow-xs">
+              <div className="flex items-center gap-4 pb-5 border-b border-slate-100">
+                <div className="w-16 h-16 rounded-2xl gradient-primary text-white font-extrabold text-2xl flex items-center justify-center shadow-md shadow-indigo-500/25">
                   {name ? name.charAt(0).toUpperCase() : 'U'}
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-primary">{name || 'User'}</h3>
-                  <p className="text-xs text-on-surface-variant">{email}</p>
-                  <span className="inline-block mt-1 text-[10px] font-semibold text-gold bg-gold/10 px-2 py-0.5 rounded border border-gold/20">
-                    Achiever Pro Plan
+                  <h3 className="text-base font-extrabold text-slate-900">{name || 'User'}</h3>
+                  <p className="text-xs text-slate-500">{email}</p>
+                  <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200">
+                    <Sparkles size={10} className="text-indigo-600" />
+                    Achiever Pro Workspace
                   </span>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-on-surface mb-1">Full Name</label>
+                  <label className="block text-xs font-bold text-slate-800 mb-1">Full Name</label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-border focus:outline-none focus:border-primary"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-on-surface mb-1">Email Address</label>
+                  <label className="block text-xs font-bold text-slate-800 mb-1">Email Address</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-border focus:outline-none focus:border-primary"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-on-surface mb-1">Headline / Bio</label>
+                <label className="block text-xs font-bold text-slate-800 mb-1">Headline / Bio</label>
                 <textarea
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   rows={3}
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-border focus:outline-none focus:border-primary resize-none"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 resize-none transition-all"
                 />
               </div>
 
-              <div className="flex justify-end pt-3 border-t border-border">
+              <div className="flex justify-end pt-3 border-t border-slate-100">
                 <button
                   type="submit"
-                  className="flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-xs font-medium transition-colors cursor-pointer shadow-xs"
+                  className="flex items-center gap-1.5 px-4 py-2 gradient-primary hover:gradient-primary-hover text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
                 >
                   <Save size={14} />
-                  Save Changes
+                  <span>Save Changes</span>
                 </button>
               </div>
             </form>
@@ -201,52 +203,68 @@ export default function Settings() {
           {activeTab === 'appearance' && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-sm font-bold text-primary mb-1">Color Theme</h3>
-                <p className="text-xs text-on-surface-variant mb-4">
-                  Select your visual workspace aesthetic.
+                <h3 className="text-sm font-bold text-slate-900 mb-1">Visual Workspace Theme</h3>
+                <p className="text-xs text-slate-500 mb-4">
+                  Select your personal aesthetic workspace palette.
                 </p>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl">
+                  {/* Light Mode Card */}
                   <button
                     type="button"
-                    onClick={() => setTheme('light')}
-                    className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all cursor-pointer ${
+                    onClick={() => {
+                      setTheme('light');
+                      toast.success('Light Mode activated');
+                    }}
+                    className={`p-5 rounded-2xl border-2 flex items-center gap-4 transition-all cursor-pointer text-left relative ${
                       theme === 'light'
-                        ? 'border-primary bg-primary/5 text-primary'
-                        : 'border-border text-on-surface-variant hover:border-gray-300'
+                        ? 'border-indigo-600 bg-indigo-50/60 shadow-sm ring-1 ring-indigo-500/20'
+                        : 'border-slate-200 hover:border-slate-300 bg-white'
                     }`}
                   >
-                    <Sun size={24} className="text-gold" />
-                    <span className="text-xs font-bold">Light Theme</span>
+                    <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0 border border-amber-200/50 shadow-xs">
+                      <Sun size={24} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-slate-900">Light Mode</span>
+                        {theme === 'light' && (
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-indigo-600 text-white">
+                            Active
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-500 mt-0.5">Clean, bright and crisp daytime workspace</p>
+                    </div>
                   </button>
 
+                  {/* Dark Mode Card */}
                   <button
                     type="button"
                     onClick={() => {
                       setTheme('dark');
-                      toast('Dark mode styling activated');
+                      toast.success('Dark Mode activated');
                     }}
-                    className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all cursor-pointer ${
+                    className={`p-5 rounded-2xl border-2 flex items-center gap-4 transition-all cursor-pointer text-left relative ${
                       theme === 'dark'
-                        ? 'border-primary bg-primary/5 text-primary'
-                        : 'border-border text-on-surface-variant hover:border-gray-300'
+                        ? 'border-indigo-600 bg-indigo-950/20 shadow-sm ring-1 ring-indigo-500/20'
+                        : 'border-slate-200 hover:border-slate-300 bg-white'
                     }`}
                   >
-                    <Moon size={24} className="text-primary" />
-                    <span className="text-xs font-bold">Dark Theme</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setTheme('system')}
-                    className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all cursor-pointer ${
-                      theme === 'system'
-                        ? 'border-primary bg-primary/5 text-primary'
-                        : 'border-border text-on-surface-variant hover:border-gray-300'
-                    }`}
-                  >
-                    <Monitor size={24} className="text-secondary-text" />
-                    <span className="text-xs font-bold">System Default</span>
+                    <div className="w-12 h-12 rounded-xl bg-indigo-900/10 text-indigo-500 flex items-center justify-center shrink-0 border border-indigo-200/50 shadow-xs">
+                      <Moon size={24} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-slate-900">Dark Mode</span>
+                        {theme === 'dark' && (
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-indigo-600 text-white">
+                            Active
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-500 mt-0.5">Sleek, eye-friendly midnight workspace</p>
+                    </div>
                   </button>
                 </div>
               </div>
@@ -256,59 +274,59 @@ export default function Settings() {
           {/* Notifications Tab */}
           {activeTab === 'notifications' && (
             <div className="space-y-5">
-              <h3 className="text-sm font-bold text-primary mb-1">Notification Preferences</h3>
-              <p className="text-xs text-on-surface-variant mb-4">
-                Choose how and when AchieverOS notifies you about upcoming deadlines.
+              <h3 className="text-sm font-bold text-slate-900 mb-1">Notification Feeds</h3>
+              <p className="text-xs text-slate-500 mb-4">
+                Choose how and when AchieverOS notifies you about milestones and upcoming deadlines.
               </p>
 
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-background">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-slate-50/50">
                   <div>
-                    <h4 className="text-xs font-bold text-primary">In-App Notification Feed</h4>
-                    <p className="text-[11px] text-on-surface-variant">Badge alerts in top header for overdue tasks</p>
+                    <h4 className="text-xs font-bold text-slate-900">In-App Notification Feed</h4>
+                    <p className="text-[11px] text-slate-500">Real-time alerts in top header for focus blocks and tasks</p>
                   </div>
                   <input
                     type="checkbox"
                     checked={inAppAlerts}
                     onChange={(e) => setInAppAlerts(e.target.checked)}
-                    className="w-4 h-4 rounded text-primary focus:ring-primary cursor-pointer"
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-background">
+                <div className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-slate-50/50">
                   <div>
-                    <h4 className="text-xs font-bold text-primary">Daily Morning Digest</h4>
-                    <p className="text-[11px] text-on-surface-variant">Daily briefing with top priorities at 8:00 AM</p>
+                    <h4 className="text-xs font-bold text-slate-900">Daily Morning Briefing</h4>
+                    <p className="text-[11px] text-slate-500">Daily breakdown with top 3 focus priorities at 8:00 AM</p>
                   </div>
                   <input
                     type="checkbox"
                     checked={emailDigests}
                     onChange={(e) => setEmailDigests(e.target.checked)}
-                    className="w-4 h-4 rounded text-primary focus:ring-primary cursor-pointer"
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-background">
+                <div className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-slate-50/50">
                   <div>
-                    <h4 className="text-xs font-bold text-primary">Push Alerts for Timetable Events</h4>
-                    <p className="text-[11px] text-on-surface-variant">10-minute advance warning before scheduled blocks</p>
+                    <h4 className="text-xs font-bold text-slate-900">Time Block Proximity Alerts</h4>
+                    <p className="text-[11px] text-slate-500">10-minute heads up prior to scheduled focus sessions</p>
                   </div>
                   <input
                     type="checkbox"
                     checked={pushNotifs}
                     onChange={(e) => setPushNotifs(e.target.checked)}
-                    className="w-4 h-4 rounded text-primary focus:ring-primary cursor-pointer"
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end pt-3 border-t border-border">
+              <div className="flex justify-end pt-3 border-t border-slate-100">
                 <button
                   type="button"
-                  onClick={() => toast.success('Notification preferences saved')}
-                  className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-xs font-medium cursor-pointer"
+                  onClick={() => toast.success('Notification preferences updated')}
+                  className="px-4 py-2 gradient-primary hover:gradient-primary-hover text-white rounded-xl text-xs font-bold cursor-pointer shadow-xs"
                 >
-                  Update Preferences
+                  Save Preferences
                 </button>
               </div>
             </div>
@@ -319,68 +337,68 @@ export default function Settings() {
             <div className="space-y-6">
               {/* Password change */}
               <form onSubmit={handlePasswordChange} className="space-y-4">
-                <h3 className="text-sm font-bold text-primary mb-1">Update Security Credentials</h3>
+                <h3 className="text-sm font-bold text-slate-900 mb-1">Update Security Credentials</h3>
                 <div>
-                  <label className="block text-xs font-semibold text-on-surface mb-1">Current Password</label>
+                  <label className="block text-xs font-bold text-slate-800 mb-1">Current Password</label>
                   <input
                     type="password"
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     required
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-border focus:outline-none focus:border-primary"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-500"
                   />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-on-surface mb-1">New Password</label>
+                    <label className="block text-xs font-bold text-slate-800 mb-1">New Password</label>
                     <input
                       type="password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       required
-                      className="w-full px-3 py-2 text-xs rounded-lg border border-border focus:outline-none focus:border-primary"
+                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-on-surface mb-1">Confirm New Password</label>
+                    <label className="block text-xs font-bold text-slate-800 mb-1">Confirm New Password</label>
                     <input
                       type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
-                      className="w-full px-3 py-2 text-xs rounded-lg border border-border focus:outline-none focus:border-primary"
+                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-500"
                     />
                   </div>
                 </div>
 
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-xs font-medium transition-colors cursor-pointer"
+                  className="px-4 py-2 gradient-primary hover:gradient-primary-hover text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
                 >
-                  Change Password
+                  Update Password
                 </button>
               </form>
 
               {/* Danger Zone */}
-              <div className="pt-6 border-t border-red-200">
-                <h3 className="text-sm font-bold text-red-600 mb-1 flex items-center gap-1.5">
+              <div className="pt-6 border-t border-rose-200">
+                <h3 className="text-sm font-bold text-rose-600 mb-1 flex items-center gap-1.5">
                   <AlertTriangle size={16} /> Danger Zone
                 </h3>
-                <p className="text-xs text-on-surface-variant mb-4">
-                  Irreversible actions regarding your account and associated productivity data.
+                <p className="text-xs text-slate-500 mb-4">
+                  Permanent actions regarding your account and productivity history.
                 </p>
 
-                <div className="p-4 rounded-xl border border-red-200 bg-red-50/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="p-4 rounded-2xl border border-rose-200 bg-rose-50/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div>
-                    <h4 className="text-xs font-bold text-red-700">Delete Account & Data</h4>
-                    <p className="text-[11px] text-red-600 mt-0.5">
-                      Permanently delete your profile, tasks, goals, notes, and timetable records.
+                    <h4 className="text-xs font-bold text-rose-700">Delete Account & Stored Data</h4>
+                    <p className="text-[11px] text-rose-600 mt-0.5">
+                      Permanently wipe profile, tasks, goals, sticky notes, and timetable records.
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setShowDeleteModal(true)}
-                    className="px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-medium cursor-pointer shrink-0 shadow-2xs"
+                    className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold cursor-pointer shrink-0 shadow-xs"
                   >
                     Delete Account
                   </button>
@@ -392,33 +410,33 @@ export default function Settings() {
       </div>
 
       {/* Account Deletion Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-xl border border-red-300 shadow-xl w-full max-w-md p-5 space-y-4">
-            <div className="flex items-center gap-2 text-red-600">
-              <AlertTriangle size={20} />
+      {showDeleteModal && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-2xl border border-rose-300 shadow-2xl w-full max-w-md p-6 space-y-4 animate-scale-in">
+            <div className="flex items-center gap-2 text-rose-600">
+              <AlertTriangle size={22} />
               <h3 className="text-sm font-bold">Confirm Permanent Deletion</h3>
             </div>
-            <p className="text-xs text-on-surface-variant">
-              This action cannot be undone. All your tasks, schedules, goals, and notes will be permanently wiped.
+            <p className="text-xs text-slate-600 leading-relaxed">
+              This action cannot be undone. All your tasks, schedules, goals, and notes will be permanently erased.
             </p>
             <div>
-              <label className="block text-xs font-semibold text-on-surface mb-1">
-                Type <span className="font-bold text-red-600">DELETE</span> to confirm:
+              <label className="block text-xs font-bold text-slate-800 mb-1">
+                Type <span className="font-bold text-rose-600">DELETE</span> to confirm:
               </label>
               <input
                 type="text"
                 value={deleteConfirmText}
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
                 placeholder="DELETE"
-                className="w-full px-3 py-2 text-xs rounded-lg border border-border focus:outline-none focus:border-red-500"
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:border-rose-500"
               />
             </div>
-            <div className="flex justify-end gap-2 pt-2 border-t border-border">
+            <div className="flex justify-end gap-2.5 pt-2 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(false)}
-                className="px-3.5 py-1.5 text-xs font-medium text-on-surface-variant hover:bg-surface-container rounded-lg cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer"
               >
                 Cancel
               </button>
@@ -426,13 +444,14 @@ export default function Settings() {
                 type="button"
                 onClick={handleDeleteAccount}
                 disabled={deleteConfirmText !== 'DELETE'}
-                className="px-4 py-1.5 text-xs font-medium bg-red-600 hover:bg-red-700 text-white rounded-lg cursor-pointer disabled:opacity-40"
+                className="px-4 py-2 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-xl cursor-pointer disabled:opacity-40"
               >
                 Permanently Delete
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

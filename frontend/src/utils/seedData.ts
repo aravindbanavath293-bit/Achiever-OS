@@ -60,16 +60,18 @@ export const SEED_NOTES: StickyNote[] = [
   { id: uid(), user_id: 'demo-user', title: 'Quarterly OKRs', content: 'Check Q4 goals - ensure TypeScript backend migration is on schedule', color: 'blue', is_pinned: true, created_at: format(subDays(today, 1), "yyyy-MM-dd'T'HH:mm:ss"), updated_at: format(subDays(today, 1), "yyyy-MM-dd'T'HH:mm:ss") },
   { id: uid(), user_id: 'demo-user', title: 'Security Checklist', content: 'Cybersecurity project research notes - Check OWASP top 10 updates and pgvector isolation', color: 'orange', is_pinned: false, created_at: format(subDays(today, 5), "yyyy-MM-dd'T'HH:mm:ss"), updated_at: format(subDays(today, 5), "yyyy-MM-dd'T'HH:mm:ss") },
   { id: uid(), user_id: 'demo-user', title: 'Thesis Meeting', content: 'Meeting with Prof. Smith about machine learning and agent orchestration', color: 'green', is_pinned: false, created_at: format(subDays(today, 4), "yyyy-MM-dd'T'HH:mm:ss"), updated_at: format(subDays(today, 4), "yyyy-MM-dd'T'HH:mm:ss") },
+  { id: uid(), user_id: 'demo-user', title: 'Product Roadmap', content: 'Sync with product leadership on Q1 milestones, AI features, and user feedback loops', color: 'purple', is_pinned: false, created_at: format(subDays(today, 6), "yyyy-MM-dd'T'HH:mm:ss"), updated_at: format(subDays(today, 6), "yyyy-MM-dd'T'HH:mm:ss") },
+  { id: uid(), user_id: 'demo-user', title: 'Reading List', content: 'Atomic Habits, Deep Work, and Designing Data-Intensive Applications', color: 'yellow', is_pinned: false, created_at: format(subDays(today, 7), "yyyy-MM-dd'T'HH:mm:ss"), updated_at: format(subDays(today, 7), "yyyy-MM-dd'T'HH:mm:ss") },
 ];
 
 export const SEED_EVENTS: ScheduleEvent[] = [
-  { id: uid(), user_id: 'demo-user', title: 'Deep Work: Strategy', day: getDayName(), start_time: '10:00', end_time: '11:30', category: 'Work', color: '#203451', week_of: getWeekOf(), created_at: todayStr, updated_at: todayStr },
-  { id: uid(), user_id: 'demo-user', title: 'Design Review', day: getDayName(), start_time: '13:30', end_time: '14:00', category: 'Design', color: '#C9A34E', week_of: getWeekOf(), created_at: todayStr, updated_at: todayStr },
-  { id: uid(), user_id: 'demo-user', title: 'Team Standup', day: getDayName(), start_time: '09:00', end_time: '09:30', category: 'Meeting', color: '#4C9B73', week_of: getWeekOf(), created_at: todayStr, updated_at: todayStr },
-  { id: uid(), user_id: 'demo-user', title: 'Coding Session', day: 'tuesday', start_time: '14:00', end_time: '16:00', category: 'Work', color: '#203451', week_of: getWeekOf(), created_at: todayStr, updated_at: todayStr },
-  { id: uid(), user_id: 'demo-user', title: 'Study Group', day: 'wednesday', start_time: '16:00', end_time: '17:30', category: 'Study', color: '#7c3aed', week_of: getWeekOf(), created_at: todayStr, updated_at: todayStr },
-  { id: uid(), user_id: 'demo-user', title: 'Gym', day: 'thursday', start_time: '07:00', end_time: '08:00', category: 'Health', color: '#4C9B73', week_of: getWeekOf(), created_at: todayStr, updated_at: todayStr },
-  { id: uid(), user_id: 'demo-user', title: 'Sprint Review', day: 'friday', start_time: '15:00', end_time: '16:00', category: 'Work', color: '#d97706', week_of: getWeekOf(), created_at: todayStr, updated_at: todayStr },
+  { id: uid(), user_id: 'demo-user', title: 'Deep Work: Strategy', day: getDayName(), start_time: '10:00', end_time: '11:30', category: 'Work', color: '#4F46E5', week_of: getWeekOf(), created_at: todayStr, updated_at: todayStr },
+  { id: uid(), user_id: 'demo-user', title: 'Design Review', day: getDayName(), start_time: '13:30', end_time: '14:00', category: 'Design', color: '#F59E0B', week_of: getWeekOf(), created_at: todayStr, updated_at: todayStr },
+  { id: uid(), user_id: 'demo-user', title: 'Team Standup', day: getDayName(), start_time: '09:00', end_time: '09:30', category: 'Meeting', color: '#10B981', week_of: getWeekOf(), created_at: todayStr, updated_at: todayStr },
+  { id: uid(), user_id: 'demo-user', title: 'Coding Session', day: 'tuesday', start_time: '14:00', end_time: '16:00', category: 'Work', color: '#3B82F6', week_of: getWeekOf(), created_at: todayStr, updated_at: todayStr },
+  { id: uid(), user_id: 'demo-user', title: 'Study Group', day: 'wednesday', start_time: '16:00', end_time: '17:30', category: 'Study', color: '#7C3AED', week_of: getWeekOf(), created_at: todayStr, updated_at: todayStr },
+  { id: uid(), user_id: 'demo-user', title: 'Gym', day: 'thursday', start_time: '07:00', end_time: '08:00', category: 'Health', color: '#14B8A6', week_of: getWeekOf(), created_at: todayStr, updated_at: todayStr },
+  { id: uid(), user_id: 'demo-user', title: 'Sprint Review', day: 'friday', start_time: '15:00', end_time: '16:00', category: 'Work', color: '#EC4899', week_of: getWeekOf(), created_at: todayStr, updated_at: todayStr },
 ];
 
 export const SEED_STREAK: StreakData = {

@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import AppLayout from './components/layout/AppLayout';
+import { BentoSkeleton } from './components/bento/Bento';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
@@ -22,8 +23,10 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-10 h-10 border-4 border-surface-container border-t-primary rounded-full animate-spin" />
+      <div className="min-h-screen bg-background p-4 md:p-7 md:pl-[238px]">
+        <div className="max-w-[1240px] mx-auto w-full pt-16">
+          <BentoSkeleton />
+        </div>
       </div>
     );
   }
@@ -56,6 +59,7 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/tasks" element={<Tasks />} />
         <Route path="/daily-planner" element={<DailyPlanner />} />
+        <Route path="/daily-schedule" element={<Navigate to="/daily-planner" replace />} />
         <Route path="/weekly-timetable" element={<WeeklyTimetable />} />
         <Route path="/weekly-todo" element={<WeeklyTodoList />} />
         <Route path="/goals" element={<Goals />} />

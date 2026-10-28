@@ -17,11 +17,11 @@ export default function AppLayout() {
       {/* Desktop Sidebar */}
       <Sidebar onCreateTask={() => setTaskModalOpen(true)} />
 
-      {/* Mobile Navigation */}
+      {/* Mobile Navigation Drawer */}
       <MobileNav isOpen={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col md:ml-[180px] w-full">
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col md:ml-[210px] w-full min-w-0">
         <TopBar
           onMenuClick={() => setMobileNavOpen(true)}
           onSearch={(query) => {
@@ -30,8 +30,8 @@ export default function AppLayout() {
             }
           }}
         />
-        <main className="flex-1 p-3 md:p-5 overflow-y-auto">
-          <div className="max-w-[1200px] mx-auto">
+        <main className="flex-1 p-4 md:p-6 lg:p-7 overflow-y-auto">
+          <div className="max-w-[1240px] mx-auto w-full">
             <Outlet />
           </div>
         </main>

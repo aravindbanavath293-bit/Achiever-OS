@@ -1,12 +1,16 @@
 import { useState, useMemo } from 'react';
 import { 
   ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, 
-  Sparkles, Plus, AlertTriangle, CheckCircle2, Circle, Edit2, Trash2, X
+  Sparkles, Plus, AlertTriangle, CheckCircle2, Circle, Edit2, Trash2, X, Check,
+  Target, BookOpen, CalendarDays, ListTodo
 } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { useAppData } from '../context/AppDataContext';
 import { formatDate, getTodayISO, getDayOfWeek } from '../utils/dateUtils';
-import { ScheduleEvent, Task, PRIORITY_CONFIG } from '../types';
+import { ScheduleEvent, PRIORITY_CONFIG, EVENT_COLORS } from '../types';
 import toast from 'react-hot-toast';
+import { eventCardStyle } from '../utils/colors';
+import { BentoGrid, BentoCard, BentoCardHeader, MetricCard, BentoProgress } from '../components/bento/Bento';
 
 export default function DailyPlanner() {
   const { tasks, events, addEvent, updateEvent, deleteEvent, toggleTask } = useAppData();
@@ -23,7 +27,7 @@ export default function DailyPlanner() {
   const [eventCategory, setEventCategory] = useState('Work');
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('10:00');
-  const [eventColor, setEventColor] = useState('#203451');
+  const [eventColor, setEventColor] = useState('#4F46E5');
 
   // Navigate date
   const changeDate = (days: number) => {
@@ -82,11 +86,10 @@ export default function DailyPlanner() {
     setEventTitle('');
     setEventCategory('Work');
     setStartTime(time || '10:00');
-    // Default 1 hour later
     const [h, m] = (time || '10:00').split(':').map(Number);
     const endH = (h + 1).toString().padStart(2, '0');
     setEndTime(`${endH}:${m.toString().padStart(2, '0')}`);
-    setEventColor('#203451');
+    setEventColor('#4F46E5');
     setIsEventModalOpen(true);
   };
 
@@ -96,7 +99,7 @@ export default function DailyPlanner() {
     setEventCategory(ev.category);
     setStartTime(ev.start_time);
     setEndTime(ev.end_time);
-    setEventColor(ev.color || '#203451');
+    setEventColor(ev.color || '#4F46E5');
     setIsEventModalOpen(true);
   };
 
@@ -139,13 +142,13 @@ export default function DailyPlanner() {
     setAiGenerating(true);
     setTimeout(() => {
       const suggestedBlocks = [
-        { title: 'Morning Deep Work: Core Project', start: '08:30', end: '10:30', cat: 'Projects', color: '#203451' },
-        { title: 'Email & Urgent Communication Review', start: '10:45', end: '11:30', cat: 'Work', color: '#4C9B73' },
-        { title: 'Sprint Review & Team Alignment', start: '11:30', end: '12:30', cat: 'Work', color: '#203451' },
-        { title: 'Healthy Lunch & Physical Walk', start: '12:30', end: '13:30', cat: 'Health', color: '#E7A23B' },
-        { title: 'Execution Block: High Priority Tasks', start: '14:00', end: '16:00', cat: 'Projects', color: '#203451' },
-        { title: 'Learning & Skill Deep Dive', start: '16:30', end: '17:30', cat: 'Study', color: '#7C3AED' },
-        { title: 'Daily Review & Next Day Plan', start: '17:30', end: '18:00', cat: 'Personal', color: '#059669' },
+        { title: 'Morning Deep Work: High Priority Focus', start: '08:30', end: '10:30', cat: 'Work', color: '#4F46E5' },
+        { title: 'Communication, Emails & Team Standup', start: '10:45', end: '11:30', cat: 'Meeting', color: '#06B6D4' },
+        { title: 'Deep Problem Solving & Implementation', start: '11:30', end: '12:30', cat: 'Projects', color: '#7C3AED' },
+        { title: 'Nutritious Lunch & Outdoor Walk', start: '12:30', end: '13:30', cat: 'Health', color: '#10B981' },
+        { title: 'Execution Block: Milestone Review', start: '14:00', end: '16:00', cat: 'Projects', color: '#4F46E5' },
+        { title: 'Continuous Learning & Upskilling', start: '16:30', end: '17:30', cat: 'Study', color: '#F59E0B' },
+        { title: 'Daily Wrap-up & Tomorrow Preparation', start: '17:30', end: '18:00', cat: 'Personal', color: '#EC4899' },
       ];
 
       suggestedBlocks.forEach(sb => {
@@ -160,104 +163,150 @@ export default function DailyPlanner() {
       });
 
       setAiGenerating(false);
-      toast.success('AI created an optimized daily schedule!');
-    }, 1200);
+      toast.success('AI successfully optimized your daily schedule!');
+    }, 1000);
   };
 
-  // Timeline hours
-  const hours = Array.from({ length: 15 }, (_, i) => i + 7); // 7 AM to 9 PM
+  // Timeline hours (7 AM to 9 PM)
+  const hours = Array.from({ length: 15 }, (_, i) => i + 7);
 
   // Completion stats
   const completedCount = dateTasks.filter(t => t.status === 'completed').length;
   const progressPercent = dateTasks.length > 0 ? Math.round((completedCount / dateTasks.length) * 100) : 0;
 
   return (
-    <div className="space-y-6">
-      {/* Header with Date Navigation */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-border shadow-xs">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center bg-background rounded-lg p-1 border border-border">
+    <div className="space-y-6 animate-fade-in">
+      {/* Bento Header Feature Card */}
+      <BentoCard span="full" variant="feature" className="p-5 md:p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5 flex-wrap">
+            <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl p-1 border border-slate-200 dark:border-slate-700 shadow-2xs">
+              <button
+                type="button"
+                onClick={() => changeDate(-1)}
+                className="p-1.5 hover:bg-white dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300 hover:text-indigo-600 transition-colors cursor-pointer"
+                title="Previous Day"
+                aria-label="Previous day"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedDate(getTodayISO())}
+                className="px-3 py-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+              >
+                Today
+              </button>
+              <button
+                type="button"
+                onClick={() => changeDate(1)}
+                className="p-1.5 hover:bg-white dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300 hover:text-indigo-600 transition-colors cursor-pointer"
+                title="Next Day"
+                aria-label="Next day"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
+            <div>
+              <h1 className="text-xl md:text-2xl font-black text-slate-900 flex items-center gap-2 capitalize tracking-tight">
+                <CalendarIcon size={22} className="text-indigo-600" />
+                {dayOfWeek}, {formatDate(selectedDate)}
+              </h1>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">Daily Schedule · Chronological Time Blocking</p>
+            </div>
+          </div>
+
+          {/* Action CTAs */}
+          <div className="flex items-center gap-2.5 w-full sm:w-auto">
             <button
-              onClick={() => changeDate(-1)}
-              className="p-1.5 hover:bg-white rounded text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
-              title="Previous Day"
+              type="button"
+              onClick={generateAIDailyPlan}
+              disabled={aiGenerating}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2.5 bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 hover:bg-violet-100 border border-violet-200/80 dark:border-violet-700/60 rounded-xl text-xs font-bold transition-all cursor-pointer disabled:opacity-50 shadow-2xs"
             >
-              <ChevronLeft size={18} />
+              <Sparkles size={14} className={`text-violet-600 ${aiGenerating ? 'animate-spin' : ''}`} />
+              <span>{aiGenerating ? 'Planning...' : 'AI Auto-Plan'}</span>
             </button>
             <button
-              onClick={() => setSelectedDate(getTodayISO())}
-              className="px-3 py-1 text-xs font-semibold text-primary hover:bg-white rounded transition-colors cursor-pointer"
+              type="button"
+              onClick={() => openNewEventModal()}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2.5 gradient-primary hover:gradient-primary-hover text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm shadow-indigo-500/25 hover:shadow-md hover:shadow-indigo-500/35"
             >
-              Today
-            </button>
-            <button
-              onClick={() => changeDate(1)}
-              className="p-1.5 hover:bg-white rounded text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
-              title="Next Day"
-            >
-              <ChevronRight size={18} />
+              <Plus size={15} />
+              <span>+ Time Block</span>
             </button>
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-primary flex items-center gap-2 capitalize">
-              <CalendarIcon size={20} className="text-gold" />
-              {dayOfWeek}, {formatDate(selectedDate)}
-            </h1>
-            <p className="text-xs text-on-surface-variant">Daily Schedule & Strategic Time Blocks</p>
-          </div>
         </div>
+      </BentoCard>
 
-        {/* Actions */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={generateAIDailyPlan}
-            disabled={aiGenerating}
-            className="flex items-center gap-1.5 px-3 py-2 bg-gold/15 text-gold-dark hover:bg-gold/25 border border-gold/30 rounded-lg text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
-          >
-            <Sparkles size={14} className={aiGenerating ? 'animate-spin' : ''} />
-            {aiGenerating ? 'Generating...' : 'AI Daily Plan'}
-          </button>
-          <button
-            onClick={() => openNewEventModal()}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-xs font-medium transition-colors cursor-pointer shadow-xs"
-          >
-            <Plus size={14} />
-            + Time Block
-          </button>
-        </div>
-      </div>
-
-      {/* Conflicts Banner */}
+      {/* Conflicts Notice Banner */}
       {conflicts.length > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-3">
-          <AlertTriangle size={18} className="text-amber-600 shrink-0 mt-0.5" />
-          <div className="text-xs text-amber-800 space-y-1">
-            <span className="font-semibold">Schedule Warning: Overlapping Time Blocks Detected</span>
+        <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 flex items-start gap-3 shadow-2xs animate-fade-in">
+          <AlertTriangle size={20} className="text-amber-600 shrink-0 mt-0.5" />
+          <div className="text-xs text-amber-900 dark:text-amber-200 space-y-1">
+            <span className="font-bold text-amber-800 dark:text-amber-300">Schedule Notice: Overlapping Time Blocks Detected</span>
             {conflicts.map((c, i) => (
-              <p key={i}>{c}</p>
+              <p key={i} className="text-amber-700 dark:text-amber-400 font-medium">{c}</p>
             ))}
           </div>
         </div>
       )}
 
-      {/* Main Grid: 2 Columns (Timeline & Daily Focus/Notes) */}
+      {/* Bento Metric KPI Tiles */}
+      <BentoGrid>
+        <MetricCard 
+          label="Tasks Due" 
+          value={dateTasks.length} 
+          icon={ListTodo} 
+          tone="indigo" 
+          hint={`${completedCount} completed for this date`}
+        />
+        <MetricCard 
+          label="Time Blocks" 
+          value={dayEvents.length} 
+          icon={Clock} 
+          tone="cyan" 
+          valueClassName="text-cyan-600"
+          hint={`${hours.length} total daylight hours`}
+        />
+        <MetricCard 
+          label="Top Priorities" 
+          value={topPriorities.length} 
+          icon={Target} 
+          tone="amber" 
+          valueClassName="text-amber-600"
+          hint={topPriorities.length > 0 ? "High impact focus items" : "All priorities completed"}
+        />
+        <MetricCard 
+          label="Execution Velocity" 
+          value={`${progressPercent}%`} 
+          icon={CheckCircle2} 
+          tone="emerald" 
+          valueClassName="text-emerald-600"
+          hint={<BentoProgress value={progressPercent} label="Daily task execution velocity" className="mt-2" />}
+        />
+      </BentoGrid>
+
+      {/* Main Grid: 2 Columns */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Left: Chronological Daily Timeline (8 cols) */}
-        <div className="lg:col-span-8 bg-white rounded-xl border border-border p-5 shadow-xs">
-          <div className="flex items-center justify-between mb-4 pb-3 border-b border-border">
-            <div className="flex items-center gap-2">
-              <Clock size={16} className="text-primary" />
-              <h2 className="text-sm font-bold text-on-surface">Chronological Timeline</h2>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-surface-container font-medium text-on-surface-variant">
-                {dayEvents.length} Blocks Scheduled
+        <BentoCard span="two-thirds" className="p-5 md:p-6">
+          <BentoCardHeader
+            title="Chronological Hourly Timeline"
+            subtitle="Plan focus sprints & time blocks"
+            icon={Clock}
+            tone="indigo"
+            badge={
+              <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 font-bold text-indigo-700 dark:text-indigo-300">
+                {dayEvents.length} Blocks
               </span>
-            </div>
-            <span className="text-xs text-on-surface-variant">Click any hour to add a block</span>
-          </div>
+            }
+            right={<span className="text-xs text-slate-400 hidden sm:inline">Click any hour to schedule</span>}
+          />
 
           {/* Timeline View */}
-          <div className="relative space-y-1.5">
+          <div className="space-y-1.5 mt-2">
             {hours.map(hour => {
               const timeString = `${hour.toString().padStart(2, '0')}:00`;
               const hourEvents = dayEvents.filter(e => {
@@ -266,49 +315,53 @@ export default function DailyPlanner() {
               });
 
               return (
-                <div key={hour} className="group flex items-start gap-3 min-h-[58px] border-b border-gray-100 py-1.5 hover:bg-gray-50/50 rounded transition-colors">
+                <div key={hour} className="group flex items-start gap-3 min-h-[58px] border-b border-slate-100/90 dark:border-slate-800/80 py-2 hover:bg-slate-50/70 dark:hover:bg-slate-800/50 rounded-xl px-2 transition-colors">
                   <div 
                     onClick={() => openNewEventModal(timeString)}
-                    className="w-14 text-right text-xs font-semibold text-secondary-text pt-1 shrink-0 cursor-pointer group-hover:text-primary"
+                    className="w-14 text-right text-xs font-bold text-slate-400 pt-1 shrink-0 cursor-pointer group-hover:text-indigo-600 transition-colors"
                   >
                     {timeString}
                   </div>
                   
                   {/* Event slots */}
-                  <div className="flex-1 flex flex-wrap gap-2">
+                  <div className="flex-1 flex flex-wrap gap-2.5">
                     {hourEvents.length > 0 ? (
                       hourEvents.map(ev => (
                         <div
                           key={ev.id}
-                          className="flex-1 min-w-[200px] max-w-full p-2.5 rounded-lg border border-border bg-white shadow-2xs hover:shadow-xs transition-all flex items-center justify-between group/card relative"
-                          style={{ borderLeftWidth: '4px', borderLeftColor: ev.color || '#203451' }}
+                          className="flex-1 min-w-[220px] max-w-full p-3 rounded-xl border border-slate-200/80 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xs hover:shadow-xs transition-all flex items-center justify-between group/card relative"
+                          style={eventCardStyle(ev.color)}
                         >
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="text-xs font-semibold text-primary">{ev.title}</span>
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-medium">
+                              <span className="text-xs md:text-sm font-bold text-slate-900 dark:text-slate-100">{ev.title}</span>
+                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/90 dark:bg-slate-800 font-bold text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700 shadow-2xs">
                                 {ev.category}
                               </span>
                             </div>
-                            <div className="text-[11px] text-on-surface-variant flex items-center gap-1 mt-0.5">
-                              <Clock size={10} />
-                              {ev.start_time} - {ev.end_time}
+                            <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
+                              <Clock size={11} className="text-slate-400" />
+                              <span>{ev.start_time} - {ev.end_time}</span>
                             </div>
                           </div>
 
                           {/* Quick Actions */}
                           <div className="flex items-center gap-1 opacity-0 group-hover/card:opacity-100 transition-opacity">
                             <button
+                              type="button"
                               onClick={() => openEditEventModal(ev)}
-                              className="p-1 text-on-surface-variant hover:text-primary rounded cursor-pointer"
+                              className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
                               title="Edit"
+                              aria-label="Edit time block"
                             >
                               <Edit2 size={13} />
                             </button>
                             <button
+                              type="button"
                               onClick={() => deleteEvent(ev.id)}
-                              className="p-1 text-on-surface-variant hover:text-red-600 rounded cursor-pointer"
+                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
                               title="Delete"
+                              aria-label="Delete time block"
                             >
                               <Trash2 size={13} />
                             </button>
@@ -317,10 +370,11 @@ export default function DailyPlanner() {
                       ))
                     ) : (
                       <button
+                        type="button"
                         onClick={() => openNewEventModal(timeString)}
-                        className="opacity-0 group-hover:opacity-100 w-full py-1.5 text-left px-3 text-xs text-gray-400 hover:text-primary transition-all flex items-center gap-1.5 cursor-pointer border border-dashed border-gray-200 rounded"
+                        className="opacity-0 group-hover:opacity-100 w-full py-1.5 text-left px-3 text-xs font-semibold text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all flex items-center gap-1.5 cursor-pointer border border-dashed border-slate-200 dark:border-slate-700 hover:border-indigo-300 rounded-lg hover:bg-white dark:hover:bg-slate-800"
                       >
-                        <Plus size={12} /> Schedule task or activity at {timeString}
+                        <Plus size={13} /> Schedule focus block at {timeString}
                       </button>
                     )}
                   </div>
@@ -328,184 +382,195 @@ export default function DailyPlanner() {
               );
             })}
           </div>
-        </div>
+        </BentoCard>
 
         {/* Right Column: Top Priorities, Daily Progress, Notes (4 cols) */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="lg:col-span-4 space-y-5">
           
-          {/* Daily Progress Card */}
-          <div className="bg-white rounded-xl border border-border p-4 shadow-xs">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-primary uppercase tracking-wider">Today's Completion</span>
-              <span className="text-xs font-bold text-primary">{progressPercent}%</span>
-            </div>
-            <div className="w-full h-2 bg-surface-container rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-primary rounded-full transition-all duration-500"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
-            <div className="flex justify-between items-center text-[11px] text-on-surface-variant mt-2">
-              <span>{completedCount} Completed</span>
-              <span>{dateTasks.length - completedCount} Remaining</span>
-            </div>
-          </div>
-
-          {/* Top 3 Priorities */}
-          <div className="bg-white rounded-xl border border-border p-4 shadow-xs">
-            <h3 className="text-xs font-bold text-primary uppercase tracking-wider mb-3 flex items-center justify-between">
-              <span>Top 3 Focus Priorities</span>
-              <span className="text-[10px] text-gold font-semibold">Priority 1, 2, 3</span>
-            </h3>
+          {/* Top 3 Priorities Bento Card */}
+          <BentoCard span="full" className="p-5">
+            <BentoCardHeader
+              title="Daily Priorities"
+              subtitle="Must-complete focus items"
+              icon={Target}
+              tone="amber"
+              badge={<span className="text-[10px] bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full font-bold border border-amber-200 dark:border-amber-800">Must Complete</span>}
+            />
 
             {topPriorities.length === 0 ? (
-              <p className="text-xs text-on-surface-variant text-center py-4 bg-background rounded-lg border border-dashed border-border">
-                No high-priority tasks due for this date.
-              </p>
+              <div className="bento-empty py-6">
+                <CheckCircle2 size={24} className="text-emerald-400 mb-1" />
+                <p className="font-semibold text-slate-600 dark:text-slate-300">No pending high-priority tasks</p>
+                <p className="text-slate-400 text-[11px]">All key priorities for today are handled!</p>
+              </div>
             ) : (
-              <div className="space-y-2">
-                {topPriorities.map((task, idx) => (
-                  <div
-                    key={task.id}
-                    className="p-2.5 rounded-lg border border-border bg-background/50 hover:bg-white transition-colors flex items-start gap-2.5"
-                  >
-                    <button
-                      onClick={() => toggleTask(task.id)}
-                      className="mt-0.5 text-on-surface-variant hover:text-success transition-colors cursor-pointer"
+              <div className="space-y-2.5">
+                {topPriorities.map((task, idx) => {
+                  const isCompleted = task.status === 'completed';
+                  return (
+                    <div
+                      key={task.id}
+                      className={`p-3 rounded-xl border transition-all flex items-start gap-2.5 ${
+                        isCompleted 
+                          ? 'bg-slate-50/70 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700 opacity-70' 
+                          : 'bg-slate-50/50 dark:bg-slate-800/50 border-slate-200/80 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 hover:border-indigo-200'
+                      }`}
                     >
-                      {task.status === 'completed' ? (
-                        <CheckCircle2 size={16} className="text-success fill-success/20" />
-                      ) : (
-                        <Circle size={16} />
-                      )}
-                    </button>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-4 h-4 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center shrink-0">
-                          {idx + 1}
-                        </span>
-                        <p className={`text-xs font-medium truncate ${task.status === 'completed' ? 'line-through text-gray-400' : 'text-on-surface'}`}>
-                          {task.title}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-1.5 mt-1">
-                        <span className={`text-[9px] px-1.5 py-0.2 rounded font-semibold ${PRIORITY_CONFIG[task.priority].bg} ${PRIORITY_CONFIG[task.priority].color}`}>
-                          {PRIORITY_CONFIG[task.priority].label}
-                        </span>
-                        <span className="text-[10px] text-on-surface-variant">{task.category}</span>
+                      <button
+                        type="button"
+                        onClick={() => toggleTask(task.id)}
+                        aria-label={`Mark task ${task.title} as ${isCompleted ? 'incomplete' : 'completed'}`}
+                        className={`w-5 h-5 rounded-md flex items-center justify-center transition-all cursor-pointer shrink-0 mt-0.5 ${
+                          isCompleted
+                            ? 'bg-emerald-500 text-white'
+                            : 'border-2 border-slate-300 dark:border-slate-600 hover:border-indigo-600 bg-white dark:bg-slate-700'
+                        }`}
+                      >
+                        {isCompleted && <Check size={12} strokeWidth={3} />}
+                      </button>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-4 h-4 rounded-full gradient-primary text-white text-[10px] font-black flex items-center justify-center shrink-0">
+                            {idx + 1}
+                          </span>
+                          <p className={`text-xs font-bold truncate ${isCompleted ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-100'}`}>
+                            {task.title}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-1.5">
+                          <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold border ${PRIORITY_CONFIG[task.priority]?.bg} ${PRIORITY_CONFIG[task.priority]?.color} ${PRIORITY_CONFIG[task.priority]?.border}`}>
+                            {PRIORITY_CONFIG[task.priority]?.label}
+                          </span>
+                          <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">{task.category}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
-          </div>
+          </BentoCard>
 
-          {/* Daily Unscheduled Tasks */}
-          <div className="bg-white rounded-xl border border-border p-4 shadow-xs">
-            <h3 className="text-xs font-bold text-primary uppercase tracking-wider mb-2">
-              All Tasks for Date ({dateTasks.length})
-            </h3>
-            <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1">
+          {/* All Tasks for Date Bento Card */}
+          <BentoCard span="full" className="p-5">
+            <BentoCardHeader
+              title="All Date Tasks"
+              subtitle="Scheduled due today"
+              icon={ListTodo}
+              tone="indigo"
+              badge={<span className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded-full">{dateTasks.length}</span>}
+            />
+            <div className="max-h-52 overflow-y-auto space-y-1.5 pr-1 scrollbar-hide">
               {dateTasks.map(task => (
                 <div
                   key={task.id}
                   onClick={() => toggleTask(task.id)}
-                  className="flex items-center justify-between p-2 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer text-xs"
+                  className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer text-xs"
                 >
                   <div className="flex items-center gap-2 truncate">
-                    {task.status === 'completed' ? (
-                      <CheckCircle2 size={14} className="text-success shrink-0" />
-                    ) : (
-                      <Circle size={14} className="text-on-surface-variant shrink-0" />
-                    )}
-                    <span className={`truncate ${task.status === 'completed' ? 'line-through text-gray-400' : 'text-on-surface'}`}>
+                    <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 ${
+                      task.status === 'completed' ? 'bg-emerald-500 text-white' : 'border border-slate-300 dark:border-slate-600'
+                    }`}>
+                      {task.status === 'completed' && <Check size={10} strokeWidth={3} />}
+                    </div>
+                    <span className={`truncate font-medium ${task.status === 'completed' ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-200'}`}>
                       {task.title}
                     </span>
                   </div>
-                  <span className="text-[10px] font-semibold text-secondary-text shrink-0">{task.priority}</span>
+                  <span className="text-[10px] font-bold text-slate-500 capitalize shrink-0 ml-2">{task.priority}</span>
                 </div>
               ))}
               {dateTasks.length === 0 && (
-                <p className="text-xs text-on-surface-variant text-center py-2">No tasks scheduled for this day.</p>
+                <div className="bento-empty py-4">
+                  <p className="text-xs text-slate-400">No tasks scheduled for this day.</p>
+                </div>
               )}
             </div>
-          </div>
+          </BentoCard>
 
-          {/* Daily Strategic Reflection / Notes */}
-          <div className="bg-white rounded-xl border border-border p-4 shadow-xs">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-primary uppercase tracking-wider">Daily Focus & Notes</span>
-              <span className="text-[10px] text-on-surface-variant">Auto-saved</span>
-            </div>
+          {/* Daily Strategic Reflection / Notes Bento Card */}
+          <BentoCard span="full" variant="muted" className="p-5">
+            <BentoCardHeader
+              title="Daily Reflection"
+              subtitle="Notes & scratchpad"
+              icon={BookOpen}
+              tone="violet"
+              badge={
+                <span className="text-[10px] font-semibold text-emerald-600 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" /> Auto-saved
+                </span>
+              }
+            />
             <textarea
               value={dailyNote}
               onChange={(e) => handleNoteChange(e.target.value)}
-              placeholder="Jot down quick reflections, blockers, ideas, or meeting reminders for today..."
+              placeholder="Jot down quick reflections, blockers, ideas, or meeting highlights for today..."
               rows={4}
-              className="w-full text-xs p-2.5 rounded-lg border border-border bg-background focus:outline-none focus:border-primary resize-none transition-colors"
+              className="w-full text-xs p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 resize-none transition-all placeholder:text-slate-400"
             />
-          </div>
+          </BentoCard>
         </div>
       </div>
 
-      {/* Modal for Creating / Editing Time Block */}
-      {isEventModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-xl border border-border shadow-lg w-full max-w-md overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-background">
-              <h3 className="text-sm font-bold text-primary">
+      {/* Modal for Creating / Editing Time Block - rendered via portal */}
+      {isEventModalOpen && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-md overflow-hidden animate-scale-in">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                 {editingEvent ? 'Edit Time Block' : 'Schedule New Time Block'}
               </h3>
               <button
+                type="button"
                 onClick={() => setIsEventModalOpen(false)}
-                className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-1 rounded-lg hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                aria-label="Close modal"
               >
-                <X size={16} />
+                <X size={17} />
               </button>
             </div>
 
-            <form onSubmit={handleSaveEvent} className="p-5 space-y-4">
+            <form onSubmit={handleSaveEvent} className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-on-surface mb-1">Activity / Focus Title *</label>
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Activity / Focus Title *</label>
                 <input
                   type="text"
                   value={eventTitle}
                   onChange={(e) => setEventTitle(e.target.value)}
-                  placeholder="e.g. System Architecture Design"
+                  placeholder="e.g. Deep Work: System Architecture"
                   required
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-border focus:outline-none focus:border-primary"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-on-surface mb-1">Start Time</label>
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Start Time</label>
                   <input
                     type="time"
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-border focus:outline-none focus:border-primary"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800 focus:outline-none focus:border-indigo-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-on-surface mb-1">End Time</label>
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">End Time</label>
                   <input
                     type="time"
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-border focus:outline-none focus:border-primary"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800 focus:outline-none focus:border-indigo-500"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-semibold text-on-surface mb-1">Category</label>
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Category</label>
                   <select
                     value={eventCategory}
                     onChange={(e) => setEventCategory(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-border focus:outline-none focus:border-primary bg-white"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800 focus:outline-none focus:border-indigo-500 bg-white"
                   >
                     <option value="Work">Work</option>
                     <option value="Study">Study</option>
@@ -516,14 +581,16 @@ export default function DailyPlanner() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-on-surface mb-1">Tag Accent Color</label>
-                  <div className="flex items-center gap-2 pt-1.5">
-                    {['#203451', '#C9A34E', '#4C9B73', '#D94B50', '#7C3AED', '#2563EB'].map(col => (
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Color Tag</label>
+                  <div className="flex items-center gap-2 pt-1 flex-wrap">
+                    {EVENT_COLORS.map(col => (
                       <button
                         type="button"
                         key={col}
                         onClick={() => setEventColor(col)}
-                        className={`w-6 h-6 rounded-full transition-transform cursor-pointer ${eventColor === col ? 'scale-110 ring-2 ring-offset-2 ring-primary' : ''}`}
+                        className={`w-6 h-6 rounded-full transition-transform cursor-pointer shadow-2xs ${
+                          eventColor === col ? 'scale-125 ring-2 ring-offset-2 ring-indigo-600' : 'hover:scale-110'
+                        }`}
                         style={{ backgroundColor: col }}
                       />
                     ))}
@@ -531,24 +598,25 @@ export default function DailyPlanner() {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-border">
+              <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setIsEventModalOpen(false)}
-                  className="px-4 py-2 text-xs font-medium text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-xs font-medium bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors cursor-pointer shadow-xs"
+                  className="px-4 py-2 text-xs font-bold gradient-primary hover:gradient-primary-hover text-white rounded-xl shadow-xs cursor-pointer"
                 >
-                  {editingEvent ? 'Save Changes' : 'Add Time Block'}
+                  {editingEvent ? 'Save Changes' : 'Schedule Block'}
                 </button>
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

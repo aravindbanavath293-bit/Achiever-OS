@@ -1,18 +1,50 @@
 import { useState, useMemo } from 'react';
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell 
 } from 'recharts';
 import { 
-  Flame, Target, CheckCircle2, TrendingUp, Calendar, BarChart3, Award, ArrowUpRight 
+  Flame, Target, CheckCircle2, TrendingUp, BarChart3, PieChart as PieIcon, CalendarDays, Gauge, AlertTriangle, Flag, CalendarClock,
 } from 'lucide-react';
 import { useAppData } from '../context/AppDataContext';
-import { getWeekDates } from '../utils/dateUtils';
+import { useTheme } from '../context/ThemeContext';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { BentoGrid, BentoCard, BentoCardHeader, MetricCard } from '../components/bento/Bento';
+import { getTodayISO } from '../utils/dateUtils';
 
 type Period = '7-days' | '30-days' | 'this-month' | 'this-year';
 
+const PERIODS: { key: Period; label: string; short: string }[] = [
+  { key: '7-days', label: 'Last 7 days', short: '7D' },
+  { key: '30-days', label: 'Last 30 days', short: '30D' },
+  { key: 'this-month', label: 'This month', short: 'Month' },
+  { key: 'this-year', label: 'This year', short: 'Year' },
+];
+
 export default function Analytics() {
-  const { tasks, goals, streak, events } = useAppData();
+  const { tasks, goals, streak } = useAppData();
+  const { theme } = useTheme();
+  const reducedMotion = usePrefersReducedMotion();
   const [period, setPeriod] = useState<Period>('7-days');
+
+  const isDark = theme === 'dark';
+  const chart = {
+    grid: isDark ? '#252A36' : '#F1F3F8',
+    tick: isDark ? '#94A0B4' : '#647084',
+    planned: isDark ? '#3B1D5E' : '#EAE2F6',   // Lavender / Soft Lilac & Deep Plum
+    completed: isDark ? '#D99280' : '#A85B49', // Rose Gold / Copper
+    tooltipBg: isDark ? '#151821' : '#FFFFFF',
+    tooltipBorder: isDark ? '#252A36' : '#E2E6EE',
+    tooltipText: isDark ? '#F8F9FC' : '#17191F',
+  };
+  const tooltipStyle = {
+    backgroundColor: chart.tooltipBg,
+    borderRadius: '12px',
+    border: `1px solid ${chart.tooltipBorder}`,
+    color: chart.tooltipText,
+    fontSize: '12px',
+    boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.15)',
+    fontWeight: 600,
+  };
 
   // Compute period boundaries
   const dateRange = useMemo(() => {
@@ -65,7 +97,6 @@ export default function Analytics() {
       });
     }
 
-    // For 30 days: sample or weekly grouping
     const weeks: { label: string; planned: number; completed: number }[] = [];
     for (let i = 0; i < dateRange.dates.length; i += 5) {
       const slice = dateRange.dates.slice(i, i + 5);
@@ -80,14 +111,14 @@ export default function Analytics() {
     return weeks;
   }, [tasks, dateRange, period]);
 
-  // Category breakdown
+  // Category breakdown (luxury palette)
   const categoryData = useMemo(() => {
     const counts: Record<string, number> = {};
     completedTasks.forEach(t => {
       counts[t.category] = (counts[t.category] || 0) + 1;
     });
 
-    const colors = ['#203451', '#C9A34E', '#4C9B73', '#D94B50', '#7C3AED', '#2563EB', '#64748B'];
+    const colors = ['#A85B49', '#5E359E', '#C29526', '#1D4ED8', '#E11D48', '#8E4939', '#7C52BE', '#1E40AF'];
     return Object.entries(counts).map(([name, count], idx) => ({
       name,
       value: count,
@@ -95,7 +126,7 @@ export default function Analytics() {
     }));
   }, [completedTasks]);
 
-  // Activity Heatmap (Last 28 days: 4 weeks x 7 days)
+  // Activity Heatmap (Last 28 days)
   const heatmapData = useMemo(() => {
     const cells: { date: string; count: number }[] = [];
     const today = new Date();
@@ -109,265 +140,226 @@ export default function Analytics() {
     return cells;
   }, [streak, tasks]);
 
-  // Focus time distribution from scheduled events
-  const focusTimeData = useMemo(() => {
-    const hoursBuckets = [
-      { label: '8 AM', hours: 1.5 },
-      { label: '10 AM', hours: 3.0 },
-      { label: '12 PM', hours: 1.0 },
-      { label: '2 PM', hours: 2.5 },
-      { label: '4 PM', hours: 2.0 },
-      { label: '6 PM', hours: 1.0 },
-      { label: '8 PM', hours: 0.5 },
-    ];
-    return hoursBuckets;
-  }, [events]);
+  // Open workload snapshot (real counts from current tasks)
+  const workload = useMemo(() => {
+    const todayISO = getTodayISO();
+    const in7 = new Date();
+    in7.setDate(in7.getDate() + 7);
+    const in7ISO = in7.toISOString().split('T')[0];
+    const open = tasks.filter(t => t.status !== 'completed');
+    return {
+      open: open.length,
+      overdue: open.filter(t => t.due_date < todayISO).length,
+      next7: open.filter(t => t.due_date >= todayISO && t.due_date <= in7ISO).length,
+      highPriority: open.filter(t => t.priority === 'high' || t.priority === 'urgent').length,
+    };
+  }, [tasks]);
+
+  const achievedGoals = goals.filter(g => g.status === 'achieved').length;
+  const activeDays = heatmapData.filter(c => c.count > 0).length;
+  const periodLabel = PERIODS.find(p => p.key === period)?.label ?? '';
 
   return (
-    <div className="space-y-6">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl border border-border shadow-xs">
-        <div>
-          <h1 className="text-xl font-bold text-primary flex items-center gap-2">
-            <BarChart3 size={20} className="text-gold" />
-            Productivity & Consistency Analytics
-          </h1>
-          <p className="text-xs text-on-surface-variant mt-0.5">
-            Real-time performance metrics, streak health, and completion habits
-          </p>
-        </div>
-
-        {/* Date Filter */}
-        <div className="flex items-center gap-2 bg-background p-1 rounded-lg border border-border text-xs">
-          <Calendar size={14} className="text-secondary-text ml-1.5" />
-          <select
-            value={period}
-            onChange={(e) => setPeriod(e.target.value as Period)}
-            className="bg-transparent font-medium text-primary focus:outline-none cursor-pointer pr-2"
-          >
-            <option value="7-days">Last 7 Days</option>
-            <option value="30-days">Last 30 Days</option>
-            <option value="this-month">This Month</option>
-            <option value="this-year">This Year</option>
-          </select>
-        </div>
-      </div>
-
-      {/* KPI Cards Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Streak */}
-        <div className="bg-white p-4 rounded-xl border border-border shadow-xs flex items-center gap-3">
-          <div className="w-11 h-11 rounded-lg bg-orange-50 border border-orange-200 text-orange-600 flex items-center justify-center shrink-0">
-            <Flame size={22} className="fill-orange-500" />
-          </div>
+    <div className="space-y-5 animate-fade-in">
+      <BentoGrid>
+        {/* Header with period filter */}
+        <BentoCard span="full" variant="feature" className="sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <span className="text-[11px] font-semibold text-secondary-text uppercase tracking-wider block">
-              Active Streak
-            </span>
-            <div className="flex items-baseline gap-1 mt-0.5">
-              <span className="text-xl font-black text-primary">{streak.current_streak}</span>
-              <span className="text-xs text-on-surface-variant">days (best: {streak.longest_streak}d)</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Completed Tasks */}
-        <div className="bg-white p-4 rounded-xl border border-border shadow-xs flex items-center gap-3">
-          <div className="w-11 h-11 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shrink-0">
-            <CheckCircle2 size={22} />
-          </div>
-          <div>
-            <span className="text-[11px] font-semibold text-secondary-text uppercase tracking-wider block">
-              Tasks Completed
-            </span>
-            <div className="flex items-baseline gap-1 mt-0.5">
-              <span className="text-xl font-black text-primary">{completedTasks.length}</span>
-              <span className="text-xs text-on-surface-variant">of {periodTasks.length} planned</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Completion Rate */}
-        <div className="bg-white p-4 rounded-xl border border-border shadow-xs flex items-center gap-3">
-          <div className="w-11 h-11 rounded-lg bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
-            <TrendingUp size={22} />
-          </div>
-          <div>
-            <span className="text-[11px] font-semibold text-secondary-text uppercase tracking-wider block">
-              Completion Rate
-            </span>
-            <div className="flex items-baseline gap-1 mt-0.5">
-              <span className="text-xl font-black text-primary">{completionRate}%</span>
-              <span className="text-xs text-success font-semibold flex items-center">
-                <ArrowUpRight size={12} /> high pace
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Goals Progress */}
-        <div className="bg-white p-4 rounded-xl border border-border shadow-xs flex items-center gap-3">
-          <div className="w-11 h-11 rounded-lg bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center shrink-0">
-            <Target size={22} className="text-gold" />
-          </div>
-          <div>
-            <span className="text-[11px] font-semibold text-secondary-text uppercase tracking-wider block">
-              Goals Achieved
-            </span>
-            <div className="flex items-baseline gap-1 mt-0.5">
-              <span className="text-xl font-black text-primary">
-                {goals.filter(g => g.status === 'achieved').length}
-              </span>
-              <span className="text-xs text-on-surface-variant">of {goals.length} active</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Charts: 2 Columns */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Planned vs Completed Bar Chart (8 cols) */}
-        <div className="lg:col-span-8 bg-white p-5 rounded-xl border border-border shadow-xs">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-xs font-bold text-primary uppercase tracking-wider">
-                Productivity Trend: Planned vs Completed
-              </h2>
-              <p className="text-[11px] text-on-surface-variant">Historical velocity across the selected date range</p>
-            </div>
-            <div className="flex items-center gap-4 text-xs">
-              <span className="flex items-center gap-1.5 text-secondary-text">
-                <span className="w-3 h-3 rounded-xs bg-[#E3E0E7]" /> Planned
-              </span>
-              <span className="flex items-center gap-1.5 text-secondary-text">
-                <span className="w-3 h-3 rounded-xs bg-[#203451]" /> Completed
-              </span>
-            </div>
+            <h1 className="text-xl md:text-2xl font-extrabold flex items-center gap-2.5 tracking-tight">
+              <BarChart3 size={22} className="text-indigo-600" aria-hidden />
+              Productivity analytics
+            </h1>
+            <p className="text-xs md:text-sm text-slate-500 font-medium mt-0.5">
+              Completion trends, streak consistency and focus by category
+            </p>
           </div>
 
-          <div className="h-64 w-full">
+          <div className="bento-segmented self-start sm:self-auto overflow-x-auto max-w-full" role="group" aria-label="Reporting period">
+            {PERIODS.map(p => (
+              <button
+                key={p.key}
+                type="button"
+                aria-pressed={period === p.key}
+                onClick={() => setPeriod(p.key)}
+                className="whitespace-nowrap"
+              >
+                <span className="hidden sm:inline">{p.label}</span>
+                <span className="sm:hidden">{p.short}</span>
+              </button>
+            ))}
+          </div>
+        </BentoCard>
+
+        {/* KPI tiles */}
+        <MetricCard
+          label="Active streak"
+          value={<>{streak.current_streak}<span className="text-base font-semibold text-slate-500 ml-1">days</span></>}
+          hint={`Best: ${streak.longest_streak} days`}
+          icon={Flame}
+          tone="amber"
+        />
+        <MetricCard
+          label="Tasks completed"
+          value={completedTasks.length}
+          valueClassName="text-blue-700"
+          hint={`of ${periodTasks.length} planned · ${periodLabel.toLowerCase()}`}
+          icon={CheckCircle2}
+          tone="cyan"
+        />
+        <MetricCard
+          label="Completion rate"
+          value={`${completionRate}%`}
+          valueClassName="text-indigo-600"
+          hint={periodTasks.length === 0 ? 'No tasks planned in range' : completionRate >= 70 ? 'Strong pace' : 'Room to improve'}
+          icon={TrendingUp}
+          tone="indigo"
+        />
+        <MetricCard
+          label="Goals achieved"
+          value={achievedGoals}
+          valueClassName="text-violet-600"
+          hint={`of ${goals.length} total`}
+          icon={Target}
+          tone="violet"
+        />
+
+        {/* Planned vs Completed */}
+        <BentoCard span="two-thirds" aria-labelledby="an-velocity">
+          <BentoCardHeader
+            id="an-velocity"
+            title="Planned vs completed"
+            subtitle={periodLabel}
+            icon={BarChart3}
+            right={
+              <div className="hidden sm:flex items-center gap-3.5 text-xs font-semibold text-slate-600" aria-hidden>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: chart.planned }} /> Planned</span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: chart.completed }} /> Completed</span>
+              </div>
+            }
+          />
+          <div className="h-64 w-full" role="img" aria-label={`Bar chart of planned versus completed tasks, ${periodLabel.toLowerCase()}. ${completedTasks.length} of ${periodTasks.length} completed.`}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E3E0E7" />
-                <XAxis 
-                  dataKey="label" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fill: '#667085', fontSize: 11 }}
-                />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fill: '#667085', fontSize: 11 }}
-                  allowDecimals={false}
-                />
-                <Tooltip 
-                  contentStyle={{
-                    backgroundColor: '#FFFFFF',
-                    borderRadius: '8px',
-                    border: '1px solid #E3E0E7',
-                    fontSize: '12px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-                  }}
-                />
-                <Bar dataKey="planned" fill="#E3E0E7" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="completed" fill="#203451" radius={[4, 4, 0, 0]} />
+              <BarChart data={trendData} margin={{ top: 10, right: 6, left: -22, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chart.grid} />
+                <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: chart.tick, fontSize: 11, fontWeight: 600 }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: chart.tick, fontSize: 11, fontWeight: 600 }} allowDecimals={false} />
+                <Tooltip contentStyle={tooltipStyle} cursor={{ fill: isDark ? 'rgba(99,102,241,0.08)' : 'rgba(99,102,241,0.06)' }} />
+                <Bar dataKey="planned" name="Planned" fill={chart.planned} radius={[6, 6, 0, 0]} isAnimationActive={!reducedMotion} animationDuration={600} />
+                <Bar dataKey="completed" name="Completed" fill={chart.completed} radius={[6, 6, 0, 0]} isAnimationActive={!reducedMotion} animationDuration={600} />
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </BentoCard>
 
-        {/* Productivity by Category (4 cols) */}
-        <div className="lg:col-span-4 bg-white p-5 rounded-xl border border-border shadow-xs flex flex-col justify-between">
-          <div>
-            <h2 className="text-xs font-bold text-primary uppercase tracking-wider mb-1">
-              Category Distribution
-            </h2>
-            <p className="text-[11px] text-on-surface-variant mb-4">Completed output by domain</p>
-            
-            <div className="h-44 w-full flex items-center justify-center">
-              {categoryData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={categoryData}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={45}
-                      outerRadius={70}
-                      paddingAngle={3}
-                    >
-                      {categoryData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              ) : (
-                <p className="text-xs text-gray-400">No completed tasks in range.</p>
-              )}
-            </div>
+        {/* Category distribution */}
+        <BentoCard span="third" aria-labelledby="an-category">
+          <BentoCardHeader id="an-category" title="By category" subtitle="Completed tasks" icon={PieIcon} tone="violet" />
+          <div className="h-44 w-full flex items-center justify-center">
+            {categoryData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={categoryData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={46}
+                    outerRadius={72}
+                    paddingAngle={4}
+                    stroke="none"
+                    isAnimationActive={!reducedMotion}
+                    animationDuration={600}
+                  >
+                    {categoryData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={tooltipStyle} />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="bento-empty w-full h-full"><p>No completed tasks in this range</p></div>
+            )}
           </div>
 
-          {/* Legend */}
-          <div className="space-y-1.5 pt-3 border-t border-border">
-            {categoryData.slice(0, 4).map(c => (
-              <div key={c.name} className="flex items-center justify-between text-xs">
-                <span className="flex items-center gap-1.5 text-on-surface">
-                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: c.color }} />
-                  {c.name}
-                </span>
-                <span className="font-semibold text-primary">{c.value} tasks</span>
+          {categoryData.length > 0 && (
+            <ul className="space-y-2 pt-3 mt-3 border-t border-slate-100">
+              {categoryData.slice(0, 5).map(c => (
+                <li key={c.name} className="flex items-center justify-between text-xs">
+                  <span className="flex items-center gap-2 font-medium text-slate-700">
+                    <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: c.color }} aria-hidden />
+                    {c.name}
+                  </span>
+                  <span className="font-bold text-slate-900 tabular-nums">{c.value} task{c.value === 1 ? '' : 's'}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </BentoCard>
+
+        {/* 28-day heatmap */}
+        <BentoCard span="two-thirds" aria-labelledby="an-heatmap">
+          <BentoCardHeader
+            id="an-heatmap"
+            title="28-day consistency"
+            subtitle={`${activeDays} active day${activeDays === 1 ? '' : 's'} in the last 4 weeks`}
+            icon={CalendarDays}
+            tone="indigo"
+            right={
+              <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-slate-500 font-semibold" aria-hidden>
+                <span>Less</span>
+                <span className="w-3 h-3 rounded bg-slate-100" />
+                <span className="w-3 h-3 rounded bg-indigo-100" />
+                <span className="w-3 h-3 rounded bg-indigo-400" />
+                <span className="w-3 h-3 rounded bg-indigo-600" />
+                <span>More</span>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Activity Heatmap & Consistency Grid */}
-      <div className="bg-white p-5 rounded-xl border border-border shadow-xs">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-xs font-bold text-primary uppercase tracking-wider">
-              28-Day Consistency Heatmap
-            </h2>
-            <p className="text-[11px] text-on-surface-variant">Daily completion volume and active habit rhythm</p>
-          </div>
-          <div className="flex items-center gap-1 text-[10px] text-secondary-text">
-            <span>Less</span>
-            <span className="w-2.5 h-2.5 rounded-xs bg-gray-100" />
-            <span className="w-2.5 h-2.5 rounded-xs bg-emerald-200" />
-            <span className="w-2.5 h-2.5 rounded-xs bg-emerald-400" />
-            <span className="w-2.5 h-2.5 rounded-xs bg-emerald-600" />
-            <span>More</span>
-          </div>
-        </div>
-
-        {/* Heatmap Grid */}
-        <div className="flex flex-wrap gap-2 pt-1">
-          {heatmapData.map(cell => {
-            let bg = 'bg-gray-100';
-            if (cell.count === 1) bg = 'bg-emerald-200';
-            else if (cell.count === 2) bg = 'bg-emerald-400';
-            else if (cell.count >= 3) bg = 'bg-emerald-600';
-
-            return (
-              <div
-                key={cell.date}
-                className={`w-9 h-9 rounded-lg ${bg} flex flex-col items-center justify-center text-[10px] font-bold transition-transform hover:scale-110 cursor-pointer shadow-2xs`}
-                title={`${cell.date}: ${cell.count} task(s) completed`}
-              >
-                <span className={cell.count >= 2 ? 'text-white' : 'text-gray-700'}>
+            }
+          />
+          <ol className="grid grid-cols-7 gap-1.5 sm:gap-2" aria-label="Daily completions, last 28 days">
+            {heatmapData.map(cell => {
+              let bg = 'bg-slate-100 text-slate-500';
+              if (cell.count === 1) bg = 'bg-indigo-100 text-indigo-900';
+              else if (cell.count === 2) bg = 'bg-indigo-400 text-white';
+              else if (cell.count >= 3) bg = 'bg-indigo-600 text-white';
+              const label = `${cell.date}: ${cell.count} task${cell.count === 1 ? '' : 's'} completed`;
+              return (
+                <li
+                  key={cell.date}
+                  className={`aspect-square sm:aspect-auto sm:h-10 rounded-lg ${bg} flex items-center justify-center text-[11px] font-bold`}
+                  title={label}
+                  aria-label={label}
+                >
                   {new Date(cell.date).getDate()}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+                </li>
+              );
+            })}
+          </ol>
+        </BentoCard>
+
+        {/* Open workload status */}
+        <BentoCard span="third" variant="muted" aria-labelledby="an-workload">
+          <BentoCardHeader id="an-workload" title="Open workload" subtitle={`${workload.open} open task${workload.open === 1 ? '' : 's'}`} icon={Gauge} tone="slate" />
+          <ul className="space-y-2.5">
+            <li className="bento-row">
+              <span className="bento-card__icon w-8 h-8 bg-rose-50 text-rose-600"><AlertTriangle size={15} aria-hidden /></span>
+              <span className="flex-1 text-xs font-semibold text-slate-700">Overdue</span>
+              <span className={`text-lg font-extrabold tabular-nums ${workload.overdue > 0 ? 'text-rose-600' : 'text-slate-900'}`}>{workload.overdue}</span>
+            </li>
+            <li className="bento-row">
+              <span className="bento-card__icon w-8 h-8 bg-indigo-50 text-indigo-600"><CalendarClock size={15} aria-hidden /></span>
+              <span className="flex-1 text-xs font-semibold text-slate-700">Due in next 7 days</span>
+              <span className="text-lg font-extrabold tabular-nums text-slate-900">{workload.next7}</span>
+            </li>
+            <li className="bento-row">
+              <span className="bento-card__icon w-8 h-8 bg-amber-50 text-amber-600"><Flag size={15} aria-hidden /></span>
+              <span className="flex-1 text-xs font-semibold text-slate-700">High / urgent priority</span>
+              <span className="text-lg font-extrabold tabular-nums text-slate-900">{workload.highPriority}</span>
+            </li>
+          </ul>
+        </BentoCard>
+      </BentoGrid>
     </div>
   );
 }

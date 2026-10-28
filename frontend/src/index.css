@@ -1,82 +1,278 @@
 @import "tailwindcss";
 
-/* ── AchieverOS Design System ── */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Luxury Brand Gradients (Rose Gold / Copper + Deep Plum + Light Gold) ── */
+@utility gradient-primary {
+  background: linear-gradient(135deg, #C47A67 0%, #A85B49 55%, #8E4939 100%);
+  box-shadow: inset 0 1px 0 rgba(246, 226, 179, 0.32);
+}
+
+@utility gradient-primary-hover {
+  background: linear-gradient(135deg, #B56A57 0%, #964C3B 55%, #783B2D 100%);
+  box-shadow: inset 0 1px 0 rgba(246, 226, 179, 0.42);
+}
+
+@utility gradient-plum {
+  background: linear-gradient(135deg, #5E359E 0%, #4A2574 55%, #381B58 100%);
+}
+
+/* ── AchieverOS Luxury Palette Design System ──
+   Primary Accents & Interactive : Rose Gold / Copper (#B86B58 / #A85B49)
+   Secondary Highlights          : Light Gold / Champagne (#D4AF37 / #E6C786)
+   Active States & Headers       : Deep Purple / Plum (#4A2574) & Lavender / Soft Lilac (#F4F0FA)
+   Base Surfaces                 : Off-White / Ghost White (#F8F9FC), Diamond White (#FFFFFF)
+   Containers & Borders          : Light Gray (#F1F3F8 / #E2E6EE) & Slate Gray (#647084)
+   Typography                    : Charcoal Black (#17191F) & Gunmetal (#232730)
+   Status, Badges & Alerts ONLY  : Sapphire Blue (#1E40AF), Diamond White (#FFFFFF),
+                                   Coral Red (#E11D48), Amber / Gold (#B47B18)
+   ────────────────────────────────────────────────── */
 
 @theme {
-  /* Brand Colors */
-  --color-primary: #203451;
-  --color-primary-dark: #172942;
-  --color-primary-light: #3e4c67;
-  --color-primary-fixed: #d7e3ff;
-  --color-on-primary: #ffffff;
-  --color-on-primary-fixed: #0c1b34;
-  
-  --color-gold: #C9A34E;
-  --color-gold-light: #e8d5a0;
-  --color-gold-dark: #a07f2e;
-  
-  /* Surface Colors */
-  --color-background: #F8F6F9;
+  /* Primary Brand Accent Scale: Rose Gold / Copper (mapped to indigo-* & primary) */
+  --color-primary: #A85B49;
+  --color-primary-dark: #8E4939;
+  --color-primary-light: #C47A67;
+  --color-primary-fixed: #FBF3F1;
+  --color-on-primary: #FFFFFF;
+  --color-on-primary-fixed: #4E231A;
+
+  --color-indigo-50: #FBF3F1;
+  --color-indigo-100: #F5E3DE;
+  --color-indigo-200: #E8C6BD;
+  --color-indigo-300: #D9A496;
+  --color-indigo-400: #CA8675;
+  --color-indigo-500: #B86B58;
+  --color-indigo-600: #A85B49;
+  --color-indigo-700: #8E4939;
+  --color-indigo-800: #743B2E;
+  --color-indigo-900: #5E3026;
+  --color-indigo-950: #361913;
+
+  /* Active States & Headers Scale: Deep Purple / Plum + Lavender / Soft Lilac (violet-* & purple-*) */
+  --color-violet: #5E359E;
+  --color-violet-light: #F4F0FA;
+
+  --color-violet-50: #F4F0FA;
+  --color-violet-100: #EAE2F6;
+  --color-violet-200: #D6C7EE;
+  --color-violet-300: #B99FE2;
+  --color-violet-400: #9B78D2;
+  --color-violet-500: #7C52BE;
+  --color-violet-600: #5E359E;
+  --color-violet-700: #4A2574;
+  --color-violet-800: #3B1D5E;
+  --color-violet-900: #2E164B;
+  --color-violet-950: #1C0C30;
+
+  --color-purple-50: #F4F0FA;
+  --color-purple-100: #EAE2F6;
+  --color-purple-200: #D6C7EE;
+  --color-purple-300: #B99FE2;
+  --color-purple-400: #9B78D2;
+  --color-purple-500: #7C52BE;
+  --color-purple-600: #5E359E;
+  --color-purple-700: #4A2574;
+  --color-purple-800: #3B1D5E;
+  --color-purple-900: #2E164B;
+  --color-purple-950: #1C0C30;
+
+  /* Base Neutral Scale: Off-White / Ghost White, Light Gray, Slate Gray, Gunmetal & Charcoal Black */
+  --color-slate-50: #F8F9FC;
+  --color-slate-100: #F1F3F8;
+  --color-slate-200: #E2E6EE;
+  --color-slate-300: #CBD2DF;
+  --color-slate-400: #94A0B4;
+  --color-slate-500: #647084;
+  --color-slate-600: #475263;
+  --color-slate-700: #323A46;
+  --color-slate-800: #232730;
+  --color-slate-900: #17191F;
+  --color-slate-950: #0E1015;
+
+  /* Secondary Highlights & Amber / Gold Status Indicators */
+  --color-gold: #D4AF37;
+  --color-gold-light: #FCF8EC;
+  --color-gold-dark: #9A7018;
+  --color-amber: #C99A2E;
+  --color-amber-light: #FCF8EC;
+
+  --color-amber-50: #FCF8EC;
+  --color-amber-100: #F7EDD0;
+  --color-amber-200: #EAD69B;
+  --color-amber-300: #DFBE6A;
+  --color-amber-400: #D4AF37;
+  --color-amber-500: #C29526;
+  --color-amber-600: #A87B1A;
+  --color-amber-700: #876014;
+  --color-amber-800: #6E4D11;
+  --color-amber-900: #5A3F0F;
+  --color-amber-950: #352306;
+
+  /* Status Indicator: Sapphire Blue (mapped to blue-*, cyan-*, sky-*) */
+  --color-cyan: #1D4ED8;
+  --color-cyan-light: #EFF4FF;
+
+  --color-blue-50: #EFF4FF;
+  --color-blue-100: #DBE6FE;
+  --color-blue-200: #BFD3FE;
+  --color-blue-300: #93B4FD;
+  --color-blue-400: #6090FA;
+  --color-blue-500: #2563EB;
+  --color-blue-600: #1D4ED8;
+  --color-blue-700: #1E40AF;
+  --color-blue-800: #1E3A8A;
+  --color-blue-900: #172554;
+
+  --color-cyan-50: #EFF4FF;
+  --color-cyan-100: #DBE6FE;
+  --color-cyan-200: #BFD3FE;
+  --color-cyan-300: #93B4FD;
+  --color-cyan-400: #6090FA;
+  --color-cyan-500: #2563EB;
+  --color-cyan-600: #1D4ED8;
+  --color-cyan-700: #1E40AF;
+  --color-cyan-800: #1E3A8A;
+  --color-cyan-900: #172554;
+  --color-cyan-950: #0F172A;
+
+  --color-sky-50: #EFF4FF;
+  --color-sky-100: #DBE6FE;
+  --color-sky-200: #BFD3FE;
+  --color-sky-500: #2563EB;
+  --color-sky-600: #1D4ED8;
+  --color-sky-700: #1E40AF;
+
+  /* Status Indicator: Coral Red (mapped to rose-* & red-*) */
+  --color-coral: #E11D48;
+  --color-coral-light: #FFF1F3;
+
+  --color-rose-50: #FFF1F3;
+  --color-rose-100: #FFE0E5;
+  --color-rose-200: #FECDD6;
+  --color-rose-300: #FDA4B4;
+  --color-rose-400: #FB718A;
+  --color-rose-500: #F43F5E;
+  --color-rose-600: #E11D48;
+  --color-rose-700: #BE123C;
+  --color-rose-800: #9F1239;
+  --color-rose-900: #881337;
+  --color-rose-950: #4C0519;
+
+  /* Status Indicator: Refined Sapphire-Teal / Emerald for completed badges */
+  --color-emerald: #0F766E;
+  --color-emerald-light: #F0FDFA;
+
+  /* Surface Tokens */
+  --color-background: #F8F9FC;
   --color-surface: #FFFFFF;
-  --color-surface-dim: #dbd9dc;
-  --color-surface-container: #efedf0;
-  --color-surface-container-low: #f5f3f5;
-  --color-surface-container-high: #eae7ea;
-  --color-surface-container-highest: #e4e2e4;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-variant: #e4e2e4;
-  --color-surface-bright: #fbf8fb;
-  
-  /* Text Colors */
-  --color-on-surface: #17243A;
-  --color-on-surface-variant: #667085;
-  --color-on-background: #1b1b1d;
-  --color-secondary-text: #667085;
-  --color-outline: #75777e;
-  --color-outline-variant: #c5c6ce;
-  
-  /* Semantic Colors */
-  --color-success: #4C9B73;
-  --color-success-light: #dcf5e7;
-  --color-warning: #E7A23B;
-  --color-warning-light: #fef3c7;
-  --color-danger: #D94B50;
-  --color-danger-light: #fde8e8;
-  --color-error: #ba1a1a;
-  --color-error-container: #ffdad6;
-  --color-on-error: #ffffff;
-  --color-on-error-container: #93000a;
-  
+  --color-surface-dim: #F1F3F8;
+  --color-surface-container: #F8F9FC;
+  --color-surface-container-low: #FAFBFD;
+  --color-surface-container-high: #F1F3F8;
+  --color-surface-container-highest: #E2E6EE;
+  --color-surface-container-lowest: #FFFFFF;
+  --color-surface-variant: #F1F3F8;
+  --color-surface-bright: #FFFFFF;
+
+  /* Typography Tokens: Charcoal Black & Gunmetal */
+  --color-on-surface: #17191F;
+  --color-on-surface-variant: #323A46;
+  --color-on-background: #17191F;
+  --color-secondary-text: #647084;
+  --color-outline: #94A0B4;
+  --color-outline-variant: #E2E6EE;
+
+  /* Semantic Status Colors */
+  --color-success: #0D9488;
+  --color-success-light: #F0FDFA;
+  --color-warning: #C29526;
+  --color-warning-light: #FCF8EC;
+  --color-danger: #E11D48;
+  --color-danger-light: #FFF1F3;
+  --color-error: #E11D48;
+  --color-error-container: #FFE0E5;
+  --color-on-error: #FFFFFF;
+  --color-on-error-container: #881337;
+
   /* Priority Colors */
-  --color-priority-high: #D94B50;
-  --color-priority-medium: #E7A23B;
-  --color-priority-low: #4C9B73;
-  --color-priority-urgent: #ba1a1a;
-  
-  /* Note Colors */
-  --color-note-yellow: #fef3c7;
-  --color-note-blue: #e0f2fe;
-  --color-note-pink: #fce7f3;
-  --color-note-orange: #ffedd5;
-  --color-note-green: #dcfce7;
-  
+  --color-priority-high: #E11D48;
+  --color-priority-medium: #C29526;
+  --color-priority-low: #1D4ED8;
+  --color-priority-urgent: #BE123C;
+
+  /* Luxury Stationery Note Colors */
+  --color-note-yellow: #FCF8EC;
+  --color-note-blue: #EFF4FF;
+  --color-note-pink: #FBF3F1;
+  --color-note-orange: #FDF5EE;
+  --color-note-green: #F8F9FC;
+
   /* Day Colors (for weekly todo) */
-  --color-day-mon: #e0e7ff;
-  --color-day-tue: #fce7f3;
-  --color-day-wed: #dcfce7;
-  --color-day-thu: #fef3c7;
-  --color-day-fri: #e0f2fe;
-  --color-day-sat: #ede9fe;
-  --color-day-sun: #ffedd5;
-  
+  --color-day-mon: #F4F0FA;
+  --color-day-tue: #FBF3F1;
+  --color-day-wed: #FCF8EC;
+  --color-day-thu: #EFF4FF;
+  --color-day-fri: #F8F9FC;
+  --color-day-sat: #F7EDD0;
+  --color-day-sun: #FFF1F3;
+
   /* Typography */
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
   --font-handwriting: 'Caveat', cursive;
-  
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md: 0 2px 8px rgba(0,0,0,0.08);
-  --shadow-lg: 0 4px 16px rgba(0,0,0,0.12);
+
+  /* Refined Architectural Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(23, 25, 31, 0.04), 0 1px 3px -1px rgba(23, 25, 31, 0.04);
+  --shadow-md: 0 4px 12px -2px rgba(23, 25, 31, 0.06), 0 2px 4px -2px rgba(23, 25, 31, 0.04);
+  --shadow-lg: 0 12px 24px -6px rgba(23, 25, 31, 0.08), 0 4px 8px -4px rgba(23, 25, 31, 0.04);
+}
+
+/* ── Bento Design Tokens (Light & Dark Luxury Modes) ── */
+:root {
+  --bento-radius: 20px;
+  --bento-radius-sm: 14px;
+  --bento-gap: 1.25rem;
+  --bento-pad: 1.5rem;
+
+  /* Off-White / Ghost White base, Diamond White cards, Light & Slate Gray borders, Charcoal/Gunmetal text */
+  --bento-bg: #F8F9FC;
+  --bento-card: #FFFFFF;
+  --bento-card-muted: #F1F3F8;
+  --bento-border: #E2E6EE;
+  --bento-border-hover: #DFB8AD;
+  --bento-text: #17191F;
+  --bento-text-muted: #647084;
+  --bento-accent: #A85B49;
+  --bento-accent-soft: #FBF3F1;
+  --bento-plum: #4A2574;
+  --bento-lilac: #F4F0FA;
+  --bento-lightgold: #D4AF37;
+  --bento-ring: rgba(184, 107, 88, 0.55);
+
+  --bento-shadow: 0 1px 2px rgba(23, 25, 31, 0.03), 0 6px 20px -10px rgba(23, 25, 31, 0.07);
+  --bento-shadow-hover: 0 4px 8px rgba(23, 25, 31, 0.04), 0 14px 30px -12px rgba(168, 91, 73, 0.18);
+
+  --bento-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --bento-duration: 200ms;
+}
+
+html.dark {
+  --bento-bg: #0D0F14;
+  --bento-card: #151821;
+  --bento-card-muted: #11141C;
+  --bento-border: #252A36;
+  --bento-border-hover: #9E5544;
+  --bento-text: #F8F9FC;
+  --bento-text-muted: #94A0B4;
+  --bento-accent: #D99280;
+  --bento-accent-soft: rgba(184, 107, 88, 0.16);
+  --bento-plum: #B99FE2;
+  --bento-lilac: rgba(94, 53, 158, 0.18);
+  --bento-lightgold: #E6C786;
+  --bento-ring: rgba(217, 146, 128, 0.65);
+
+  --bento-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 24px -12px rgba(0, 0, 0, 0.55);
+  --bento-shadow-hover: 0 4px 10px rgba(0, 0, 0, 0.4), 0 16px 34px -12px rgba(0, 0, 0, 0.65);
 }
 
 /* ── Base Styles ── */
@@ -86,16 +282,31 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
   }
-  
+
   body {
-    background-color: var(--color-background);
-    color: var(--color-on-background);
+    background-color: var(--bento-bg);
+    color: var(--bento-text);
     line-height: 1.5;
+    /* Subtle luxury ambient wash: Soft Lilac at top-left, Rose Gold & Light Gold at bottom-right */
+    background-image:
+      radial-gradient(at 0% 0%, rgba(94, 53, 158, 0.055) 0px, transparent 48%),
+      radial-gradient(at 100% 0%, rgba(212, 175, 55, 0.045) 0px, transparent 42%),
+      radial-gradient(at 100% 100%, rgba(184, 107, 88, 0.06) 0px, transparent 48%);
+    background-attachment: fixed;
+    min-height: 100vh;
   }
-  
+
   * {
     box-sizing: border-box;
+  }
+
+  /* Consistent, visible Rose Gold keyboard focus everywhere */
+  :focus-visible {
+    outline: 2px solid var(--bento-ring);
+    outline-offset: 2px;
+    border-radius: 8px;
   }
 
   ::-webkit-scrollbar {
@@ -106,11 +317,231 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: var(--color-outline-variant);
-    border-radius: 3px;
+    background: #CBD2DF;
+    border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-outline);
+    background: #A85B49;
+  }
+}
+
+/* ── Bento Components ── */
+
+@layer components {
+  /* 12 → 6 → 2 → 1 column responsive bento grid */
+  .bento-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    grid-auto-flow: row dense;
+    gap: 1rem;
+  }
+  @media (min-width: 640px) {
+    .bento-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (min-width: 768px) {
+    .bento-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--bento-gap); }
+  }
+  @media (min-width: 1024px) {
+    .bento-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  }
+
+  /* Base card: Diamond White surface, crisp Light Gray border */
+  .bento-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--bento-card);
+    color: var(--bento-text);
+    border: 1px solid var(--bento-border);
+    border-radius: var(--bento-radius);
+    padding: 1.25rem;
+    box-shadow: var(--bento-shadow);
+    transition:
+      border-color var(--bento-duration) var(--bento-ease),
+      box-shadow var(--bento-duration) var(--bento-ease),
+      transform var(--bento-duration) var(--bento-ease);
+  }
+  @media (min-width: 768px) {
+    .bento-card { padding: var(--bento-pad); }
+  }
+  .bento-card:hover {
+    border-color: var(--bento-border-hover);
+  }
+
+  /* Interactive cards lift with warm copper shadow */
+  .bento-card--interactive { cursor: pointer; }
+  .bento-card--interactive:hover {
+    box-shadow: var(--bento-shadow-hover);
+    transform: translateY(-2px);
+  }
+  .bento-card--interactive:active { transform: translateY(0); }
+
+  /* Feature / Header card: Deep Purple / Plum & Soft Lilac header wash with Rose Gold & Light Gold accents */
+  .bento-card--feature {
+    overflow: hidden;
+    border-color: #DCD2EC;
+    background:
+      radial-gradient(120% 140% at 100% 0%, rgba(94, 53, 158, 0.09) 0%, transparent 55%),
+      radial-gradient(90% 120% at 0% 100%, rgba(184, 107, 88, 0.08) 0%, transparent 58%),
+      radial-gradient(70% 90% at 50% 0%, rgba(212, 175, 55, 0.06) 0%, transparent 50%),
+      var(--bento-card);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), var(--bento-shadow);
+  }
+
+  /* Accent (inverted) card: Deep Royal Plum to Burnished Rose Gold with Light Gold sheen */
+  .bento-card--accent {
+    overflow: hidden;
+    color: #FFFFFF;
+    border: 1px solid rgba(230, 199, 134, 0.28);
+    background:
+      radial-gradient(110% 110% at 100% 0%, rgba(230, 199, 134, 0.22) 0%, transparent 48%),
+      linear-gradient(140deg, #3B1D5E 0%, #522980 48%, #9E5544 100%);
+    box-shadow: 0 14px 32px -14px rgba(59, 29, 94, 0.55);
+  }
+  .bento-card--accent:hover {
+    border-color: rgba(230, 199, 134, 0.45);
+  }
+
+  /* Muted card for supporting/utility info */
+  .bento-card--muted {
+    background: var(--bento-card-muted);
+    box-shadow: none;
+  }
+
+  /* Card header row */
+  .bento-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .bento-card__title {
+    font-size: 0.9375rem;
+    line-height: 1.375rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--bento-text);
+  }
+  .bento-card__subtitle {
+    font-size: 0.75rem;
+    line-height: 1.125rem;
+    color: var(--bento-text-muted);
+    margin-top: 0.125rem;
+  }
+  .bento-card__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.75rem;
+  }
+  .bento-card__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--bento-accent);
+    padding: 0.375rem 0.625rem;
+    border-radius: 0.625rem;
+    transition: background-color var(--bento-duration) var(--bento-ease), color var(--bento-duration) var(--bento-ease);
+  }
+  .bento-card__link:hover {
+    background: var(--bento-accent-soft);
+    color: #8E4939;
+  }
+
+  /* Metric typography */
+  .bento-eyebrow {
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--bento-text-muted);
+  }
+  .bento-metric {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Inner list rows inside cards */
+  .bento-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.875rem;
+    border: 1px solid var(--bento-border);
+    background: var(--bento-card);
+    transition: border-color var(--bento-duration) var(--bento-ease), background-color var(--bento-duration) var(--bento-ease);
+  }
+  .bento-row:hover { border-color: var(--bento-border-hover); }
+
+  /* Empty state */
+  .bento-empty {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 0.25rem;
+    padding: 1.5rem 1rem;
+    border-radius: var(--bento-radius-sm);
+    border: 1px dashed var(--bento-border);
+    color: var(--bento-text-muted);
+    font-size: 0.75rem;
+  }
+
+  /* Segmented control (tabs / filters) — Lavender & Deep Plum active state */
+  .bento-segmented {
+    display: inline-flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border-radius: 0.875rem;
+    background: var(--bento-card-muted);
+    border: 1px solid var(--bento-border);
+  }
+  .bento-segmented button {
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--bento-text-muted);
+    transition: background-color var(--bento-duration) var(--bento-ease), color var(--bento-duration) var(--bento-ease), box-shadow var(--bento-duration) var(--bento-ease);
+    cursor: pointer;
+  }
+  .bento-segmented button:hover { color: var(--bento-text); }
+  .bento-segmented button[aria-pressed="true"],
+  .bento-segmented button[aria-selected="true"] {
+    background: var(--bento-lilac);
+    color: var(--bento-plum);
+    box-shadow: 0 1px 3px rgba(74, 37, 116, 0.12);
+  }
+
+  /* Loading skeleton */
+  .bento-skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--bento-card-muted);
+    border-radius: 0.625rem;
+  }
+  .bento-skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(184, 107, 88, 0.14), transparent);
+    animation: bentoShimmer 1.4s ease-in-out infinite;
   }
 }
 
@@ -124,99 +555,336 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
+  /* Typography Scale */
   .text-display {
     font-size: 32px;
     line-height: 40px;
-    letter-spacing: -0.02em;
-    font-weight: 700;
+    letter-spacing: -0.025em;
+    font-weight: 800;
   }
-  
+
   .text-headline-lg {
     font-size: 24px;
     line-height: 32px;
-    letter-spacing: -0.01em;
-    font-weight: 600;
+    letter-spacing: -0.02em;
+    font-weight: 700;
   }
-  
+
   .text-headline-md {
-    font-size: 20px;
-    line-height: 28px;
+    font-size: 19px;
+    line-height: 26px;
+    letter-spacing: -0.01em;
+    font-weight: 700;
+  }
+
+  .text-title-task {
+    font-size: 15px;
+    line-height: 22px;
     font-weight: 600;
   }
-  
-  .text-title-task {
-    font-size: 16px;
-    line-height: 24px;
-    font-weight: 500;
-  }
-  
+
   .text-body-md {
     font-size: 14px;
     line-height: 22px;
     font-weight: 400;
   }
-  
+
   .text-body-sm {
     font-size: 13px;
     line-height: 20px;
     font-weight: 400;
   }
-  
+
   .text-label-caps {
     font-size: 11px;
     line-height: 16px;
-    letter-spacing: 0.05em;
-    font-weight: 600;
+    letter-spacing: 0.06em;
+    font-weight: 700;
     text-transform: uppercase;
   }
-  
+
   .text-metadata {
     font-size: 12px;
     line-height: 16px;
-    font-weight: 400;
+    font-weight: 500;
+  }
+
+  /* Luxury Surface & Accent Gradients */
+  .gradient-emerald {
+    background: linear-gradient(135deg, #0D9488 0%, #0F766E 100%);
+  }
+
+  .gradient-amber {
+    background: linear-gradient(135deg, #D4AF37 0%, #B4821E 100%);
+  }
+
+  .gradient-coral {
+    background: linear-gradient(135deg, #F43F5E 0%, #BE123C 100%);
+  }
+
+  .gradient-cyan {
+    background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
+  }
+
+  .gradient-text-vibrant {
+    background: linear-gradient(135deg, #4A2574 0%, #A85B49 55%, #C99A2E 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .gradient-text-amber {
+    background: linear-gradient(135deg, #D4AF37 0%, #A85B49 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Premium Card & Surface Effects */
+  .card-premium {
+    background: var(--bento-card);
+    border: 1px solid var(--bento-border);
+    border-radius: var(--bento-radius);
+    box-shadow: var(--bento-shadow);
+    transition: border-color var(--bento-duration) var(--bento-ease), box-shadow var(--bento-duration) var(--bento-ease);
+  }
+
+  .card-premium:hover {
+    border-color: var(--bento-border-hover);
+    box-shadow: var(--bento-shadow-hover);
+  }
+
+  .card-glow {
+    box-shadow: 0 0 22px -4px rgba(184, 107, 88, 0.18);
+  }
+
+  .glass-header {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(226, 230, 238, 0.9);
   }
 }
 
 /* ── Animations ── */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
 }
 
 @keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-8px); }
-  to { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: none; }
 }
 
 @keyframes slideInRight {
-  from { opacity: 0; transform: translateX(8px); }
-  to { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: none; }
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: none; }
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes bentoShimmer {
+  100% { transform: translateX(100%); }
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.2s ease-out forwards;
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
 .animate-slide-in-left {
-  animation: slideInLeft 0.2s ease-out forwards;
+  animation: slideInLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
 .animate-scale-in {
-  animation: scaleIn 0.15s ease-out forwards;
+  animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
+
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s infinite ease-in-out;
+}
+
+.animate-float {
+  animation: floatSlow 4s ease-in-out infinite;
+}
+
+/* Staggered entrance for bento tiles */
+.bento-grid > .bento-card {
+  animation: fadeIn 0.35s var(--bento-ease) backwards;
+}
+.bento-grid > .bento-card:nth-child(2) { animation-delay: 30ms; }
+.bento-grid > .bento-card:nth-child(3) { animation-delay: 60ms; }
+.bento-grid > .bento-card:nth-child(4) { animation-delay: 90ms; }
+.bento-grid > .bento-card:nth-child(5) { animation-delay: 120ms; }
+.bento-grid > .bento-card:nth-child(6) { animation-delay: 150ms; }
+.bento-grid > .bento-card:nth-child(n+7) { animation-delay: 180ms; }
 
 /* ── Toast Styles ── */
 .toast-container > div {
   font-family: var(--font-sans) !important;
   font-size: 14px !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px -5px rgba(23, 25, 31, 0.14) !important;
+}
+
+/* ── Legacy card harmonisation ── */
+main section.bg-white.rounded-2xl,
+main div.bg-white.rounded-2xl {
+  border-radius: var(--bento-radius);
+  border-color: var(--bento-border);
+  box-shadow: var(--bento-shadow);
+  transition: border-color var(--bento-duration) var(--bento-ease), box-shadow var(--bento-duration) var(--bento-ease);
+}
+main section.bg-white.rounded-2xl:hover,
+main div.bg-white.rounded-2xl:hover {
+  border-color: var(--bento-border-hover);
+}
+
+/* Page header cards get a soft Lavender / Lilac & Rose Gold luxury tint */
+main div.bg-white.rounded-2xl:has(> div > h1),
+main div.bg-white.rounded-2xl:has(> h1) {
+  background-image:
+    radial-gradient(120% 160% at 100% 0%, rgba(94, 53, 158, 0.08) 0%, transparent 55%),
+    radial-gradient(80% 140% at 0% 100%, rgba(184, 107, 88, 0.07) 0%, transparent 60%);
+}
+
+/* Page titles: Charcoal Black / Gunmetal */
+main h1 {
+  color: var(--bento-text);
+  letter-spacing: -0.02em;
+}
+
+/* Sidebar: crisp Diamond White surface with Light Gray hairline */
+aside.fixed {
+  background-color: var(--bento-card);
+}
+
+/* ── Dark Mode Luxury Theme System ── */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #0D0F14 !important;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(94, 53, 158, 0.12) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(184, 107, 88, 0.10) 0px, transparent 50%) !important;
+  color: #F8F9FC;
+}
+
+html.dark aside.fixed {
+  background-image: none !important;
+  background-color: #13161F !important;
+  border-color: #252A36 !important;
+}
+
+html.dark header.glass-header {
+  background: rgba(19, 22, 31, 0.86) !important;
+  border-color: #252A36 !important;
+}
+
+html.dark main section.bg-white,
+html.dark main div.bg-white.rounded-2xl,
+html.dark div.bg-white.rounded-2xl,
+html.dark .bg-white {
+  background-color: #151821 !important;
+  border-color: #252A36 !important;
+  color: #F8F9FC;
+}
+
+/* Dark mode page banner headers */
+html.dark main div.bg-white.rounded-2xl:has(> div > h1),
+html.dark main div.bg-white.rounded-2xl:has(> h1) {
+  background-image:
+    radial-gradient(120% 160% at 100% 0%, rgba(94, 53, 158, 0.20) 0%, transparent 55%),
+    radial-gradient(80% 140% at 0% 100%, rgba(184, 107, 88, 0.15) 0%, transparent 60%) !important;
+}
+
+html.dark .bento-card--feature {
+  border-color: #2E2640;
+}
+
+html.dark .text-slate-900,
+html.dark .text-slate-800 {
+  color: #F8F9FC !important;
+}
+
+html.dark .text-slate-700,
+html.dark .text-slate-600 {
+  color: #CBD2DF !important;
+}
+
+html.dark .text-slate-500 {
+  color: #94A0B4 !important;
+}
+
+html.dark .border-slate-100,
+html.dark .border-slate-200 {
+  border-color: #252A36 !important;
+}
+
+html.dark .bg-slate-50,
+html.dark .bg-slate-100 {
+  background-color: #1C202B !important;
+}
+
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #1C202B !important;
+  border-color: #323A46 !important;
+  color: #F8F9FC !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #647084 !important;
+}
+
+html.dark .shadow-2xl,
+html.dark .shadow-xl {
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.65) !important;
+}
+
+/* Tinted icon chips in dark mode */
+html.dark .bg-indigo-50 { background-color: rgba(184, 107, 88, 0.16) !important; }
+html.dark .bg-violet-50 { background-color: rgba(124, 82, 190, 0.18) !important; }
+html.dark .bg-emerald-50 { background-color: rgba(13, 148, 136, 0.16) !important; }
+html.dark .bg-amber-50 { background-color: rgba(212, 175, 55, 0.16) !important; }
+html.dark .bg-rose-50 { background-color: rgba(225, 29, 72, 0.16) !important; }
+html.dark .bg-cyan-50 { background-color: rgba(37, 99, 235, 0.16) !important; }
+html.dark .bg-blue-50 { background-color: rgba(37, 99, 235, 0.16) !important; }
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .bento-card--interactive:hover { transform: none; }
 }

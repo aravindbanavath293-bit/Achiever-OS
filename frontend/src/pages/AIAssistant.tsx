@@ -7,6 +7,7 @@ import { useAppData } from '../context/AppDataContext';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import { BentoCard } from '../components/bento/Bento';
 
 interface Message {
   id: string;
@@ -31,10 +32,10 @@ const QUICK_PROMPTS = [
 function renderFormattedMessage(text: string) {
   const lines = text.split('\n');
   return (
-    <div className="space-y-1">
+    <div className="space-y-1.5">
       {lines.map((line, idx) => {
         if (!line.trim()) {
-          return <div key={idx} className="h-1.5" />;
+          return <div key={idx} className="h-1" />;
         }
         const parts = line.split(/(\*\*.*?\*\*|\*.*?\*)/g);
         return (
@@ -42,14 +43,14 @@ function renderFormattedMessage(text: string) {
             {parts.map((part, pIdx) => {
               if (part.startsWith('**') && part.endsWith('**')) {
                 return (
-                  <strong key={pIdx} className="font-semibold text-primary">
+                  <strong key={pIdx} className="font-bold text-slate-900">
                     {part.slice(2, -2)}
                   </strong>
                 );
               }
               if (part.startsWith('*') && part.endsWith('*')) {
                 return (
-                  <em key={pIdx} className="italic text-secondary-text">
+                  <em key={pIdx} className="italic text-slate-500">
                     {part.slice(1, -1)}
                   </em>
                 );
@@ -77,7 +78,7 @@ export default function AIAssistant() {
       id: 'welcome',
       sender: 'assistant',
       agent: 'Orchestrator',
-      text: `Hello ${user?.name || 'Alex'}! I am your AchieverOS AI Agent. I have direct context on your ${tasks.length} tasks, ${goals.length} goals, and ${notes.length} sticky notes.\n\nHow can I optimize your workflow today?`,
+      text: `Hello ${user?.name || 'Alex'}! I am your AchieverOS AI Agent. I have full context on your ${tasks.length} tasks, ${goals.length} goals, and ${notes.length} sticky notes.\n\nHow can I optimize your workflow today?`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -139,7 +140,7 @@ export default function AIAssistant() {
         agentName = 'Planner';
         setActiveAgent('Planner Agent');
         const pendingToday = tasks.filter(t => t.status !== 'completed');
-        responseText = `I have analyzed your workload and scheduled blocks. Here is an optimized plan:\n\n1. **09:00 - 11:00** Deep Work: ${pendingToday[0]?.title || 'Core Milestone Work'}\n2. **11:15 - 12:30** Focus Block: ${pendingToday[1]?.title || 'Secondary Tasks'}\n3. **13:30 - 14:30** Communication & Email Review\n4. **15:00 - 17:00** Project Execution\n\nWould you like me to commit these blocks to your Daily Planner?`;
+        responseText = `I have analyzed your workload and scheduled blocks. Here is an optimized plan:\n\n1. **09:00 - 11:00** Deep Work: ${pendingToday[0]?.title || 'Core Milestone Work'}\n2. **11:15 - 12:30** Focus Block: ${pendingToday[1]?.title || 'Secondary Tasks'}\n3. **13:30 - 14:30** Communication & Email Review\n4. **15:00 - 17:00** Project Execution\n\nWould you like me to commit these blocks to your Daily Schedule?`;
       } else if (qLower.includes('break down') || qLower.includes('goal') || qLower.includes('typescript')) {
         agentName = 'Goal Coach';
         setActiveAgent('Goal Coach Agent');
@@ -148,7 +149,7 @@ export default function AIAssistant() {
           type: 'create_goal',
           data: {
             title: 'Master TypeScript & Full-Stack Architecture',
-            category: 'Education',
+            category: 'Career',
             milestones: [
               'Types, Generics & Advanced Utility Types',
               'React 19 + TypeScript Full Integration',
@@ -170,9 +171,9 @@ export default function AIAssistant() {
         agentName = 'Knowledge Retrieval';
         setActiveAgent('Knowledge Retrieval Agent (RAG)');
         const foundNotes = notes.slice(0, 2);
-        responseText = `Retrieved matching documents from your knowledge store using pgvector semantic search:\n\n${
+        responseText = `Retrieved matching documents from your knowledge store using semantic search:\n\n${
           foundNotes.map(n => `• **${n.title}**: "${n.content.slice(0, 100)}..."`).join('\n\n')
-        }\n\n*Source: User Sticky Notes (Embeddings verified)*`;
+        }\n\n*Source: User Sticky Notes (Knowledge Base)*`;
       } else if (qLower.includes('streak') || qLower.includes('summarize') || qLower.includes('velocity')) {
         agentName = 'Orchestrator';
         setActiveAgent('Central Orchestrator');
@@ -215,7 +216,7 @@ export default function AIAssistant() {
         },
       ]);
       setIsTyping(false);
-    }, 900);
+    }, 800);
   };
 
   const handleApplyAction = (actionCard: Message['actionCard']) => {
@@ -237,7 +238,7 @@ export default function AIAssistant() {
       addGoal({
         title: actionCard.data.title,
         description: 'Auto-structured by Goal Coach Agent',
-        category: actionCard.data.category || 'Education',
+        category: actionCard.data.category || 'Career',
         target_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         status: 'in-progress',
         milestones: (actionCard.data.milestones || []).map((m: string, i: number) => ({
@@ -251,46 +252,51 @@ export default function AIAssistant() {
   };
 
   return (
-    <div className="space-y-4 h-[calc(100vh-140px)] flex flex-col">
+    <div className="space-y-4 h-[calc(100vh-140px)] flex flex-col animate-fade-in">
       {/* Top Header with Multi-Agent Indicator */}
-      <div className="bg-white p-4 rounded-xl border border-border shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shrink-0">
+      <BentoCard span="full" variant="feature" className="p-4 md:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shrink-0">
         <div>
-          <h1 className="text-xl font-bold text-primary flex items-center gap-2">
-            <Bot size={22} className="text-gold" />
-            AchieverOS AI Agent
+          <h1 className="text-xl md:text-2xl font-black text-slate-900 flex items-center gap-2.5 tracking-tight">
+            <div className="w-8 h-8 rounded-xl bg-violet-100 dark:bg-violet-950/60 text-violet-600 flex items-center justify-center">
+              <Bot size={20} />
+            </div>
+            AchieverOS AI Agent Fleet
           </h1>
         </div>
 
         {/* Multi-Agent Badge */}
-        <div className="flex items-center gap-2 bg-background px-3 py-1.5 rounded-lg border border-border text-xs">
-          <Layers size={14} className="text-primary" />
-          <span className="text-on-surface-variant">Active Agent:</span>
-          <span className="font-bold text-primary">{activeAgent}</span>
+        <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+          <Layers size={14} className="text-indigo-600" />
+          <span className="text-slate-500 font-medium">Active Agent:</span>
+          <span className="font-bold text-indigo-700 dark:text-indigo-300">{activeAgent}</span>
         </div>
-      </div>
+      </BentoCard>
 
       {/* Chat Messages Area */}
-      <div className="flex-1 bg-white rounded-xl border border-border p-4 shadow-xs overflow-y-auto space-y-4">
+      <div className="flex-1 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 md:p-6 shadow-sm overflow-y-auto space-y-4">
         {messages.map(msg => (
           <div
             key={msg.id}
-            className={`flex items-start gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex items-start gap-3.5 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {msg.sender === 'assistant' && (
-              <div className="w-8 h-8 rounded-full bg-primary text-gold flex items-center justify-center shrink-0 border border-gold/40 shadow-xs">
-                <Bot size={16} />
+              <div className="w-9 h-9 rounded-xl gradient-primary text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                <Bot size={18} />
               </div>
             )}
 
-            <div className={`max-w-[80%] rounded-xl p-3.5 text-xs ${
+            <div className={`max-w-[82%] sm:max-w-[75%] rounded-2xl p-4 text-xs md:text-sm ${
               msg.sender === 'user'
-                ? 'bg-primary text-white'
-                : 'bg-background border border-border text-on-surface'
+                ? 'gradient-primary text-white shadow-sm'
+                : 'bg-slate-50/70 border border-slate-200 text-slate-800'
             }`}>
               {msg.sender === 'assistant' && msg.agent && (
-                <div className="flex items-center justify-between gap-2 mb-1.5 pb-1 border-b border-border/50 text-[10px] text-gold font-bold uppercase tracking-wider">
-                  <span>{msg.agent.endsWith('Agent') ? msg.agent : `${msg.agent} Agent`}</span>
-                  <span className="text-gray-400 font-normal">{msg.timestamp}</span>
+                <div className="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-slate-200/60 text-[10px] font-bold uppercase tracking-wider text-indigo-700">
+                  <span className="flex items-center gap-1">
+                    <Sparkles size={11} className="text-violet-500" />
+                    {msg.agent.endsWith('Agent') ? msg.agent : `${msg.agent} Agent`}
+                  </span>
+                  <span className="text-slate-400 font-normal">{msg.timestamp}</span>
                 </div>
               )}
 
@@ -298,26 +304,26 @@ export default function AIAssistant() {
 
               {/* Action Card Preview */}
               {msg.actionCard && (
-                <div className="mt-3 p-2.5 rounded-lg bg-white border border-border shadow-2xs space-y-2">
-                  <div className="flex items-center justify-between text-[11px] font-bold text-primary">
+                <div className="mt-3.5 p-3 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-2.5">
+                  <div className="flex items-center justify-between text-xs font-bold text-indigo-700">
                     <span className="flex items-center gap-1.5">
-                      <Sparkles size={13} className="text-gold" /> Proposed Action:
+                      <Sparkles size={13} className="text-amber-500" /> Proposed Action:
                     </span>
-                    <span className="capitalize">{msg.actionCard.type.replace('_', ' ')}</span>
+                    <span className="capitalize text-[10px] bg-indigo-50 px-2 py-0.5 rounded-full">{msg.actionCard.type.replace('_', ' ')}</span>
                   </div>
-                  <p className="font-semibold text-xs text-on-surface">{msg.actionCard.data.title}</p>
+                  <p className="font-bold text-xs text-slate-900">{msg.actionCard.data.title}</p>
                   <button
                     onClick={() => handleApplyAction(msg.actionCard)}
-                    className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 bg-primary text-white rounded font-medium text-xs hover:bg-primary-dark transition-colors cursor-pointer"
+                    className="w-full flex items-center justify-center gap-1.5 px-4 py-2 gradient-primary hover:gradient-primary-hover text-white rounded-xl font-bold text-xs transition-all cursor-pointer shadow-xs"
                   >
-                    <Check size={13} /> Confirm & Apply to System
+                    <Check size={14} /> Confirm & Apply to Workspace
                   </button>
                 </div>
               )}
             </div>
 
             {msg.sender === 'user' && (
-              <div className="w-8 h-8 rounded-full bg-surface-container text-primary font-bold text-xs flex items-center justify-center shrink-0 border border-border">
+              <div className="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0 border border-indigo-200 mt-0.5">
                 {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
               </div>
             )}
@@ -325,9 +331,9 @@ export default function AIAssistant() {
         ))}
 
         {isTyping && (
-          <div className="flex items-center gap-2 text-xs text-on-surface-variant p-2">
-            <RefreshCw size={14} className="animate-spin text-primary" />
-            <span>AI Orchestrator is synthesizing response...</span>
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 p-2">
+            <RefreshCw size={14} className="animate-spin text-indigo-600" />
+            <span>AI Orchestrator is synthesizing context...</span>
           </div>
         )}
         <div ref={messagesEndRef} />
@@ -339,7 +345,7 @@ export default function AIAssistant() {
           <button
             key={idx}
             onClick={() => handleSend(prompt)}
-            className="px-3 py-1.5 rounded-full bg-white border border-border hover:border-primary text-[11px] text-on-surface-variant hover:text-primary whitespace-nowrap transition-colors cursor-pointer shadow-2xs"
+            className="px-3.5 py-1.5 rounded-full bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 text-xs font-semibold text-slate-600 hover:text-indigo-700 whitespace-nowrap transition-all cursor-pointer shadow-2xs"
           >
             {prompt}
           </button>
@@ -352,21 +358,21 @@ export default function AIAssistant() {
           e.preventDefault();
           handleSend();
         }}
-        className="bg-white p-2 rounded-xl border border-border shadow-xs flex items-center gap-2 shrink-0"
+        className="bg-white p-2.5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center gap-2 shrink-0 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-100 transition-all"
       >
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask AI to plan your day, break down a goal, or search your notes..."
-          className="flex-1 px-3 py-2 text-xs focus:outline-none text-on-surface placeholder-gray-400"
+          className="flex-1 px-3.5 py-2 text-xs md:text-sm focus:outline-none text-slate-800 placeholder-slate-400 bg-transparent"
         />
         <button
           type="submit"
           disabled={!input.trim()}
-          className="p-2.5 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors cursor-pointer disabled:opacity-40 shadow-xs"
+          className="p-2.5 gradient-primary hover:gradient-primary-hover text-white rounded-xl transition-all cursor-pointer disabled:opacity-40 shadow-xs"
         >
-          <Send size={15} />
+          <Send size={16} />
         </button>
       </form>
     </div>
